@@ -1,0 +1,12 @@
+package books
+
+import (
+    "goethe/views/layouts"
+    "goethe/data"
+)
+
+templ Show(book data.Book) {
+    @layouts.Base() {
+        <h1>Hello {book.Title} from Books</h1>
+    }
+}
