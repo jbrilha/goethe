@@ -1,4 +1,3 @@
 # goethe
 
-*Eventually* a Goodreads-esque place for me to log my books and stuff
-Using this to learn Go and HTMX
+This branch is just to have a really basic setup ready to go for future stuff
