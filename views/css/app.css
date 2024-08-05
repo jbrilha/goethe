@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'AppleChancery';
+    src: url('fonts/AppleChancery.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'AcademyEngraved';
+    src: url('fonts/AcademyEngraved.ttf') format('truetype');
+}

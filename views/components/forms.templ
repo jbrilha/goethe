@@ -1,0 +1,57 @@
+package components
+
+templ BookForm() {
+	<form
+		hx-delete="/remove-book"
+		hx-swap="beforeend"
+		hx-target="#base"
+		hx-indicator="#spinner"
+		class="bg-yellow-200 shadow-2xl rounded px-8 py-4 mb-4"
+	>
+		<p class="text-xl font-bold mb-2">
+			Add/remove a book
+		</p>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="book-title">
+				Title
+			</label>
+			<input
+				class="border border-black rounded w-full p-2 text-gray-700 leading-tight focus:outline-none"
+				id="book-title"
+				name="book-title"
+				type="text"
+				placeholder="Title"
+			/>
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="book-author">
+				Author
+			</label>
+			<input
+				class="border border-black rounded w-full p-2 text-gray-700 leading-tight focus:outline-none"
+				id="book-author"
+				name="book-author"
+				type="text"
+				placeholder="Author"
+			/>
+		</div>
+		<div class="flex items-center justify-between">
+			<button
+				class="border border-orange-600 bg-yellow-50 hover:text-white hover:bg-orange-400 text-gray-950 font-bold py-2 px-4"
+				type="submit"
+				formmethod="post"
+				formaction="/add-book"
+			>
+				Add
+			</button>
+			<button
+				class="border border-red-600 bg-red-400 hover:text-red-600 hover:bg-black text-gray-950 font-bold py-2 px-4"
+				type="submit"
+				formmethod="delete"
+				formaction="/remove-book"
+			>
+				Remove
+			</button>
+		</div>
+	</form>
+}

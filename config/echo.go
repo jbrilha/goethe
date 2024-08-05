@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"html/template"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -11,6 +13,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+type Template struct {
+	Templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.Templates.ExecuteTemplate(w, name, data)
+}
 
 func ApplyEchoConfig(e *echo.Echo) {
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -29,11 +39,11 @@ func ApplyEchoConfig(e *echo.Echo) {
 			url := fmt.Sprintf("%s%v%v%s", ansi.Cyan, v.Host, v.URI, ansi.None)
 
 			latColor := ansi.Green
-			if v.Latency > 10 * time.Second {
+			if v.Latency > 10*time.Second {
 				latColor = ansi.Red
-			} else if v.Latency >= 5 * time.Second {
+			} else if v.Latency >= 5*time.Second {
 				latColor = ansi.Orange
-			} else if v.Latency >= 1 * time.Second {
+			} else if v.Latency >= 1*time.Second {
 				latColor = ansi.Yellow
 			}
 			lat := fmt.Sprintf("%s%v%s", latColor, v.Latency, ansi.None)

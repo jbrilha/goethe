@@ -1,11 +1,15 @@
 package home
 
 import (
+	"goethe/views/components"
 	"goethe/views/layouts"
 )
 
 templ Index() {
 	@layouts.Base() {
-		<div class="flex flex-col items-center"></div>
+		<h1 class="p-5 text-2xl">Home page placeholder w/ form</h1>
+		<div class="w-full max-w-xs px-5">
+			@components.BookForm()
+		</div>
 	}
 }
