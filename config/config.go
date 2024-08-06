@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -12,6 +13,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/joho/godotenv"
 )
 
 type Template struct {
@@ -22,7 +25,24 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.Templates.ExecuteTemplate(w, name, data)
 }
 
+func Port() string {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Something went wrong loading .env file;\nDefaulting to port :8080")
+		return ":8080"
+	}
+
+	return os.Getenv("PORT")
+}
+
 func ApplyEchoConfig(e *echo.Echo) {
+
+	t := &Template{
+		Templates: template.Must(template.ParseGlob("views/*.html")),
+	}
+
+	e.Renderer = t
+
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogProtocol:      true,
 		LogLatency:       true,

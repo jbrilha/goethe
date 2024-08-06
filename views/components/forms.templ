@@ -1,13 +1,7 @@
 package components
 
 templ BookForm() {
-	<form
-		hx-delete="/remove-book"
-		hx-swap="beforeend"
-		hx-target="#base"
-		hx-indicator="#spinner"
-		class="bg-yellow-200 shadow-2xl rounded px-8 py-4 mb-4"
-	>
+	<form hx-swap="beforeend" hx-target="#base" class="bg-yellow-200 shadow-2xl rounded px-8 py-4 mb-4">
 		<p class="text-xl font-bold mb-2">
 			Add/remove a book
 		</p>
@@ -38,17 +32,13 @@ templ BookForm() {
 		<div class="flex items-center justify-between">
 			<button
 				class="border border-orange-600 bg-yellow-50 hover:text-white hover:bg-orange-400 text-gray-950 font-bold py-2 px-4"
-				type="submit"
-				formmethod="post"
-				formaction="/add-book"
+				hx-post="/add-book"
 			>
 				Add
 			</button>
 			<button
 				class="border border-red-600 bg-red-400 hover:text-red-600 hover:bg-black text-gray-950 font-bold py-2 px-4"
-				type="submit"
-				formmethod="delete"
-				formaction="/remove-book"
+				hx-delete="/remove-book"
 			>
 				Remove
 			</button>
