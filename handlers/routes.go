@@ -5,14 +5,15 @@ import (
 )
 
 func SetRoutes(e *echo.Echo) {
-    e.Static("/public", "public")
+	e.Static("/public", "public")
 
 	e.GET("/", HandleHome)
 
-	e.GET("/books", BooksBase)
-	e.GET("/blog", BlogBase)
+	e.GET("/bookshelf", BookshelfBase)
+	e.POST("/bookshelf/add-book", AddBook)
+	e.DELETE("/bookshelf/remove-book", RemoveBook)
+	e.GET("/bookshelf/book", HandleBook)
 
-	e.GET("/book", HandleBook)
-	e.POST("/add-book", AddBook)
-	e.DELETE("/remove-book", RemoveBook)
+	e.GET("/blog", BlogBase)
+	e.GET("/blog/post", BlogPost)
 }
