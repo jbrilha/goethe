@@ -36,13 +36,6 @@ func Port() string {
 }
 
 func ApplyEchoConfig(e *echo.Echo) {
-
-	t := &Template{
-		Templates: template.Must(template.ParseGlob("views/*.html")),
-	}
-
-	e.Renderer = t
-
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogProtocol:      true,
 		LogLatency:       true,
