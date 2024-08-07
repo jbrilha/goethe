@@ -8,3 +8,6 @@
 # dirs
 tmp/
 bin/
+
+# tailwind
+tailwind.css
