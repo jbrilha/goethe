@@ -1,0 +1,37 @@
+package components
+
+import (
+	"fmt"
+	"goethe/data"
+)
+
+templ Post(p data.Post) {
+	<article
+		class="container max-w-screen-lg max-h-96 px-4 py-2 relative
+        rounded-lg bg-yellow-200 border-b-4 border-l-4 border-yellow-300 shadow-2xl"
+	>
+		<div class="mb-2">
+			<a
+				class="text-3xl font-bold line-clamp-2 hover:underline"
+				href=""
+				hx-get={ fmt.Sprintf("/blog/post?id=%d",
+            p.ID) }
+				hx-target="#blog-page"
+				hx-push-url="true"
+			>
+				{ p.Title }
+			</a>
+			<p class="text-xs">
+				{ p.Timestamp.Format("01-02-2006 @ 15:04") }
+			</p>
+		</div>
+		<div class="text-xl line-clamp-8">
+			{ p.Content }
+		</div>
+		<!-- fade out: https://gist.github.com/drikusroor/aa48937c59b3d6123ca43ae9c660661d
+            need "relative" up in the article otherwise it's applied to the entire page -->
+		<div
+			class="after:absolute after:inset-x-0 after:bottom-0 after:h-16 after:bg-gradient-to-b after:from-transparent after:to-yellow-200"
+		></div>
+	</article>
+}

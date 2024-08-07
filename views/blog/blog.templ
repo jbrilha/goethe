@@ -1,13 +1,31 @@
 package blog
 
 import (
+	"goethe/data"
+	"goethe/views/components"
 	"goethe/views/layouts"
 )
 
-templ Index() {
+templ Post(post data.Post) {
+	<div>
+		{ post.Title }
+		{ post.Content }
+	</div>
+}
+
+templ Index(posts []data.Post) {
 	@layouts.Base() {
-		<div class="p-5 text-2xl">
-			<h2>Blog page placeholder</h2>
+		<div id="blog-page">
+			<h1 class="p-5 text-2xl">Blog page placeholder</h1>
+			<div class="px-5 flex justify-center">
+				<ul>
+					for _, post := range posts {
+						<li class="mb-4">
+							@components.Post(post)
+						</li>
+					}
+				</ul>
+			</div>
 		</div>
 	}
 }
