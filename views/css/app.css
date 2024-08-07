@@ -3,11 +3,18 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: 'AppleChancery';
-    src: url('fonts/AppleChancery.ttf') format('truetype');
+  font-family: "AppleChancery";
+  src: url("fonts/AppleChancery.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: 'AcademyEngraved';
-    src: url('fonts/AcademyEngraved.ttf') format('truetype');
+  font-family: "AcademyEngraved";
+  src: url("fonts/AcademyEngraved.ttf") format("truetype");
+}
+
+.line-clamp-8 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 8;
 }
