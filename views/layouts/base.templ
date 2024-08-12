@@ -9,8 +9,8 @@ templ Base() {
 <html lang="en">
     <head>
         <title>Goethe</title>
-        <link rel="icon" type="image/x-icon" href="/public/favicon.ico" />
-        <meta charset="UTF-8" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/public/tailwind.css" />
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -21,7 +21,7 @@ templ Base() {
             </script>
     </head>
 
-    <body id="base" class="antialiased bg-yellow-100">
+    <body id="base" class="antialiased">
         @components.NavigationBar(true)
         {children...}
     </body>

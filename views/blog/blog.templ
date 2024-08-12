@@ -1,31 +1,80 @@
 package blog
 
 import (
+	"fmt"
 	"goethe/data"
-	"goethe/views/components"
+	"goethe/db"
+
 	"goethe/views/layouts"
 )
 
-templ Post(post data.Post) {
-	<div>
-		{ post.Title }
-		{ post.Content }
-	</div>
-}
-
 templ Index(posts []data.Post) {
 	@layouts.Base() {
-		<div id="blog-page">
-			<h1 class="p-5 text-2xl">Blog page placeholder</h1>
-			<div class="px-5 flex justify-center">
-				<ul>
-					for _, post := range posts {
-						<li class="mb-4">
-							@components.Post(post)
-						</li>
-					}
-				</ul>
-			</div>
+		<div id="blog-page" class="py-5 flex justify-center">
+			<ul>
+	            for _, post := range db.GetBlogPosts() {
+					<li class="mb-4">
+						@PostPreview(post)
+					</li>
+				}
+			</ul>
+		</div>
+	}
+}
+
+templ PostPreview(p data.Post) {
+	<article
+		id="blog-post"
+		class="container max-w-screen-md max-h-96 px-4 py-2 relative
+        rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-2xl"
+	>
+		<div class="mb-2">
+			<a
+				class="mb-1 text-3xl font-bold line-clamp-2 hover:underline"
+				href=""
+				hx-get={ fmt.Sprintf("/blog/post?id=%d",
+            p.ID) }
+				hx-target="#base"
+				hx-push-url="true"
+			>
+				{ p.Title }
+			</a>
+			<p class="text-xs">
+				{ p.Timestamp.Format("01-02-2006 @ 15:04") }
+			</p>
+		</div>
+		<div class="text-xl line-clamp-8">
+			{ p.Content }
+		</div>
+		<!-- fade out: https://gist.github.com/drikusroor/aa48937c59b3d6123ca43ae9c660661d
+            need "relative" up in the article otherwise it's applied to the entire page -->
+		<div
+			class="after:rounded-lg after:absolute after:inset-x-0 after:bottom-0 after:h-16
+            after:bg-gradient-to-b after:from-transparent after:to-gray-200"
+		></div>
+	</article>
+}
+
+templ Post(p data.Post) {
+	@layouts.Base() {
+		<div class="py-5 flex justify-center">
+			<article
+				id="blog-post"
+				class="container max-w-screen-md px-4 py-2 relative
+        rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-2xl"
+			>
+				<div class="mb-2">
+					<h1 class="mb-1 text-3xl font-bold">
+						{ p.Title }
+					</h1>
+					<p class="text-xs">
+						{ p.Timestamp.Format("01-02-2006 @ 15:04") }
+					</p>
+				</div>
+				<div class="text-xl">
+					{ p.Content }
+				</div>
+			</article>
 		</div>
 	}
 }
