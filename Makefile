@@ -6,7 +6,7 @@ build:
 	@go build -o bin/app .
 
 css:
-	tailwindcss -i views/css/app.css -o public/tailwind.css --watch
+	@tailwindcss -i views/css/app.css -o public/tailwind.css --watch
 
 templ: 
-	@templ generate --watch --proxy=http://localhost:8000
+	@templ generate --watch --proxy=http://localhost:8080

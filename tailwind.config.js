@@ -7,6 +7,8 @@ module.exports = {
             fontFamily: {
                 appleChancery: ['AppleChancery', 'sans-serif'],
                 academyEngraved: ['AcademyEngraved', 'sans-serif'],
+                baskerville: ['Baskerville', 'sans-serif'],
+                timesNewRoman: ['TimesNewRoman', 'sans-serif'],
             },
         },
     },
