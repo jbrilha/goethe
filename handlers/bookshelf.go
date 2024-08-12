@@ -8,8 +8,8 @@ import (
 )
 
 func AddBook(c echo.Context) error {
-	title := c.FormValue("book-title")
-	author := c.FormValue("book-author")
+	title := c.FormValue("title")
+	author := c.FormValue("author")
 
 	book := data.Book{Title: title, Author: author}
 
@@ -17,8 +17,8 @@ func AddBook(c echo.Context) error {
 }
 
 func RemoveBook(c echo.Context) error {
-	title := c.FormValue("book-title")
-	author := c.FormValue("book-author")
+	title := c.FormValue("title")
+	author := c.FormValue("author")
 
 	book := data.Book{Title: title, Author: author}
 
