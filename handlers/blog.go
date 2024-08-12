@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"goethe/auth"
 	"goethe/data"
+	"goethe/util"
 	"goethe/views/blog"
 	"strconv"
 
@@ -14,10 +16,24 @@ func BlogBase(c echo.Context) error {
 }
 
 func BlogPost(c echo.Context) error {
-	id, e := strconv.Atoi(c.QueryParam("id"))
-    if e != nil {
+	id, err := strconv.Atoi(c.QueryParam("id"))
+    if err != nil {
 		fmt.Println("Invalid query param")
     }
 
-	return Render(c, blog.Post(data.GetPosts()[id]))
+    fmt.Println(id)
+    post := data.GetPosts()[0]
+
+    
+    jwt, jerr := auth.CreateJWT("example")
+    if jerr != nil {
+		fmt.Println("Failed to create JWT", jerr)
+    }
+
+    err = util.WriteCookie(c, "JWT", jwt)
+    if err != nil {
+		fmt.Println("Cookie failed to write")
+    }
+
+	return Render(c, blog.Post(post))
 }
