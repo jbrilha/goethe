@@ -1,4 +1,4 @@
-package ansi
+package util
 
 const (
 	None            = "\033[0m"
