@@ -2,7 +2,8 @@ package main
 
 import (
 	"goethe/config"
-	"goethe/handlers"
+	"goethe/db"
+	"goethe/env"
 
 	"github.com/labstack/echo/v4"
 )
@@ -10,9 +11,13 @@ import (
 func main() {
 	e := echo.New()
 
+	env.Init()
+	db.Init(env.DBConn())
+	defer db.Close()
+
 	config.ApplyEchoConfig(e)
 
-	handlers.SetRoutes(e)
+	config.SetRoutes(e)
 
-	e.Logger.Fatal(e.Start(config.Port()))
+	e.Logger.Fatal(e.Start(env.Port()))
 }
