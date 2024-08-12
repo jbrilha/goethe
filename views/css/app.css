@@ -12,6 +12,16 @@
   src: url("fonts/AcademyEngraved.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "Baskerville";
+  src: url("fonts/Baskerville.ttc") format("truetype");
+}
+
+@font-face {
+  font-family: "TimesNewRoman";
+  src: url("fonts/TimesNewRoman.ttf") format("truetype");
+}
+
 .line-clamp-8 {
   overflow: hidden;
   display: -webkit-box;
