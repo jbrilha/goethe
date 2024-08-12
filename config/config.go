@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"goethe/util/ansi"
+	ansi "goethe/util"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-
-	"github.com/joho/godotenv"
 )
 
 type Template struct {
@@ -23,16 +20,6 @@ type Template struct {
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.Templates.ExecuteTemplate(w, name, data)
-}
-
-func Port() string {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Something went wrong loading .env file;\nDefaulting to port :8080")
-		return ":8080"
-	}
-
-	return os.Getenv("PORT")
 }
 
 func ApplyEchoConfig(e *echo.Echo) {
