@@ -16,6 +16,12 @@ func SetRoutes(e *echo.Echo) {
 
 	e.GET("/", handlers.Home)
 
+	e.GET("/login", handlers.LoginForm)
+	e.POST("/login", handlers.Login)
+
+	e.GET("/register", handlers.RegisterForm)
+	e.POST("/register", handlers.Register)
+
 	e.GET("/bookshelf", handlers.BookshelfBase)
 	e.POST("/bookshelf/add-book", auth.WithJWT(handlers.AddBook, handlers.Route404))
 	e.DELETE("/bookshelf/remove-book", auth.WithJWT(handlers.RemoveBook, handlers.Route404))

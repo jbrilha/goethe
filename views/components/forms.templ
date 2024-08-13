@@ -1,5 +1,130 @@
 package components
 
+type LoginFormValues struct {
+	Username     string
+	Password     string
+	Confirmation string
+}
+
+templ LoginForm(values LoginFormValues, errors map[string]string) {
+	<div id="login-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white">
+		<form hx-post="/login" hx-swap="outerHTML" hx-target="#navbar" class="border border-black shadow-2xl p-4">
+			<div class="mb-4">
+				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+					Username
+				</label>
+				<input
+					class="border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none"
+					id="username"
+					name="username"
+					type="text"
+					placeholder="Username"
+					value={ values.Username }
+				/>
+			</div>
+			<div class="mb-4">
+				<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+					Password
+				</label>
+				<input
+					class="border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none"
+					id="password"
+					name="password"
+					type="password"
+					placeholder="Password"
+					value={ values.Password }
+				/>
+				<div class="text-red-400 text-sm">
+					{ errors["PW_LEN"] }
+				</div>
+			</div>
+			<div id="login-form-buttons" class="flex items-center justify-between">
+				<button
+					class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-1 px-2"
+				>
+					Login
+				</button>
+				<button
+					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
+					hx-get="/register"
+					hx-target="#login-form"
+					hx-swap="outerHTML"
+				>
+					Register
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ RegisterForm(values LoginFormValues, errors map[string]string) {
+	<div id="register-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white">
+		<form hx-post="/register" hx-swap="outerHTML" hx-target="#navbar" class="border border-black shadow-2xl p-4">
+			<div class="mb-4">
+				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+					Username
+				</label>
+				<input
+					required
+					class="border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none"
+					id="username"
+					name="username"
+					type="text"
+					placeholder="Username"
+					value={ values.Username }
+				/>
+			</div>
+			<div class="mb-4">
+				<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+					Password
+				</label>
+				<input
+					required
+					class="border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none"
+					id="password"
+					name="password"
+					type="password"
+					placeholder="Password"
+					value={ values.Password }
+				/>
+				<div class="text-red-400 text-sm">
+					{ errors["PW_LEN"] }
+				</div>
+			</div>
+			<div class="mb-4">
+				<label class="block text-gray-700 text-sm font-bold mb-2" for="confirmation">
+					Confirmation
+				</label>
+				<input
+					required
+					class="border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none"
+					id="confirmation"
+					name="confirmation"
+					type="password"
+					placeholder="Confirmation"
+					value={ values.Confirmation }
+				/>
+				<div class="text-red-400 text-sm">
+					{ errors["PW_CONF"] }
+				</div>
+			</div>
+			<div id="register-form-buttons" class="flex items-center justify-between">
+				<button
+					disabled
+					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
+				>
+					Login
+				</button>
+				<button
+					class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-1 px-2"
+				>
+					Register
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
 templ BookForm() {
 	<form hx-swap="beforeend" hx-target="#base" class="bg-yellow-200 shadow-2xl rounded px-6 py-4 mb-4">
 		<p class="text-xl font-bold mb-2">
