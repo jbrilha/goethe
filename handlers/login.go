@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"goethe/auth"
+	"goethe/db"
 	"goethe/util"
 	"goethe/views/components"
 	"strconv"
@@ -30,7 +31,10 @@ func Login(c echo.Context) error {
 		return Render(c, components.NavigationBarWForm(v, e, true))
 	}
 
-	jwt, err := auth.CreateJWT("example")
+    un := v.Username // username
+    user := db.GetUserAccount(un)
+
+	jwt, err := auth.CreateJWT(user)
 	if err != nil {
 		fmt.Println("Failed to create JWT", err)
 	}
@@ -66,7 +70,10 @@ func Register(c echo.Context) error {
 		return Render(c, components.NavigationBarWForm(v, e, false))
 	}
 
-	jwt, err := auth.CreateJWT("example")
+    un := v.Username // username
+    user := db.GetUserAccount(un)
+
+	jwt, err := auth.CreateJWT(user)
 	if err != nil {
 		fmt.Println("Failed to create JWT", err)
 	}
