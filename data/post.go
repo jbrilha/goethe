@@ -3,11 +3,11 @@ package data
 import "time"
 
 type Post struct {
-	ID        int
-	Creator   string
-	Title     string
-	Content   string
-	CreatedAt time.Time
+	ID        int       `json:"id"`
+	Creator   string    `json:"creator"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func GetPosts() []Post {
