@@ -10,3 +10,9 @@ css:
 
 templ: 
 	@templ generate --watch --proxy=http://localhost:8080
+
+air:
+	@air
+
+dev:
+	make -j3 css templ
