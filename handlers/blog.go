@@ -15,7 +15,7 @@ func BlogBase(c echo.Context) error {
 }
 
 func BlogPost(c echo.Context) error {
-	id, err := strconv.Atoi(c.QueryParam("id"))
+	id, err := strconv.Atoi(c.Param("id"))
     if err != nil {
 		fmt.Println("Invalid query param")
     }

@@ -31,8 +31,7 @@ templ PostPreview(p data.Post) {
 			<a
 				class="mb-1 text-3xl font-bold line-clamp-2 hover:underline"
 				href=""
-				hx-get="/blog/post"
-				hx-vals={ util.QueryParams("id", p.ID) }
+				hx-get={ util.PathParams("/blog/posts", p.ID) }
 				hx-target="#base"
 				hx-push-url="true"
 			>

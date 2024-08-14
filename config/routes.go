@@ -28,5 +28,5 @@ func SetRoutes(e *echo.Echo) {
 	e.GET("/bookshelf/book", handlers.HandleBook)
 
 	e.GET("/blog", handlers.BlogBase)
-	e.GET("/blog/post", handlers.BlogPost)
+    e.GET("/blog/posts/:id", handlers.BlogPost)
 }
