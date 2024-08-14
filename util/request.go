@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Helper func to use with hx-vals instead of manually Sprintf'ing in the template
+// Helper func to use with hx-vals
 func QueryParams(kv ...interface{}) string {
 	if len(kv)%2 != 0 {
 		fmt.Printf("invalid args, must be even to form key:value")
@@ -23,4 +23,12 @@ func QueryParams(kv ...interface{}) string {
 	qp.WriteString(" }")
 
 	return qp.String()
+}
+
+// Helper func to set url path params
+func PathParams(path string, param interface{}) string {
+	if path[len(path)-1] != '/' {
+		return fmt.Sprintf("%v/%v", path, param)
+	}
+	return fmt.Sprintf("%v%v", path, param)
 }
