@@ -2,7 +2,6 @@ package blog
 
 import (
 	"goethe/data"
-	"goethe/db"
 	"goethe/util"
 	"goethe/views/layouts"
 )
@@ -11,7 +10,7 @@ templ Index(posts []data.Post) {
 	@layouts.Base() {
 		<div id="blog-page" class="py-5 flex justify-center">
 			<ul>
-				for _, post := range db.GetBlogPosts() {
+				for _, post := range posts {
 					<li class="mb-4">
 						@PostPreview(post)
 					</li>
