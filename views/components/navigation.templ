@@ -17,7 +17,6 @@ templ NavigationBar(loggedIn bool) {
 					<button
 						id="login-button"
 						class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
-						type="button"
 						hx-get="/login"
 						hx-vals={ util.QueryParams("showForm", true) }
 						hx-swap="outerHTML"
@@ -45,7 +44,6 @@ templ NavigationBarWForm(values LoginFormValues, errors map[string]string, login
 				<div id="login-button">
 					<button
 						class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
-						type="button"
 						hx-get="/login"
 						hx-vals={ util.QueryParams("showForm", false) }
 						hx-swap="outerHTML"

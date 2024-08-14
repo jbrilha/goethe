@@ -1,5 +1,7 @@
 package components
 
+import "goethe/util"
+
 type LoginFormValues struct {
 	Username     string
 	Password     string
@@ -110,8 +112,11 @@ templ RegisterForm(values LoginFormValues, errors map[string]string) {
 			</div>
 			<div id="register-form-buttons" class="flex items-center justify-between">
 				<button
-					disabled
 					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
+						hx-get="/login"
+						hx-vals={ util.QueryParams("showForm", true) }
+						hx-swap="outerHTML"
+						hx-target="#navbar"
 				>
 					Login
 				</button>
