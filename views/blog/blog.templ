@@ -39,7 +39,7 @@ templ PostPreview(p data.Post) {
 				{ p.Title }
 			</a>
 			<p class="text-xs">
-				{ p.Timestamp.Format("01-02-2006 @ 15:04") }
+				{ p.Creator } | { p.CreatedAt.Format("01-02-2006 @ 15:04") }
 			</p>
 		</div>
 		<div class="text-xl line-clamp-8">
@@ -67,7 +67,7 @@ templ Post(p data.Post) {
 						{ p.Title }
 					</h1>
 					<p class="text-xs">
-						{ p.Timestamp.Format("01-02-2006 @ 15:04") }
+						{ p.Creator } | { p.CreatedAt.Format("01-02-2006 @ 15:04") }
 					</p>
 				</div>
 				<div class="text-xl">
