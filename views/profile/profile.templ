@@ -1,0 +1,24 @@
+package profile
+
+import (
+	"goethe/data"
+	"goethe/views/layouts"
+	"strconv"
+)
+
+templ Index(u data.User) {
+	@layouts.Base() {
+		<div id="bookshelf-page">
+			<h1 class="p-5 text-2xl">Bookshelf page placeholder</h1>
+			<div class="px-5">
+				<ul>
+					<li>{ strconv.Itoa(u.ID) }</li>
+					<li>{ u.Username }</li>
+					<li>{ u.Email }</li>
+					<li>{ u.Password }</li>
+					<li>{ u.CreatedAt.String() }</li>
+				</ul>
+			</div>
+		</div>
+	}
+}
