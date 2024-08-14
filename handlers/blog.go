@@ -2,9 +2,8 @@ package handlers
 
 import (
 	"fmt"
-	"goethe/auth"
 	"goethe/data"
-	"goethe/util"
+	"goethe/db"
 	"goethe/views/blog"
 	"strconv"
 
@@ -22,18 +21,7 @@ func BlogPost(c echo.Context) error {
     }
 
     fmt.Println(id)
-    post := data.GetPosts()[0]
-
-    
-    jwt, jerr := auth.CreateJWT("example")
-    if jerr != nil {
-		fmt.Println("Failed to create JWT", jerr)
-    }
-
-    err = util.WriteCookie(c, "JWT", jwt)
-    if err != nil {
-		fmt.Println("Cookie failed to write")
-    }
+    post := db.GetBlogPost(id)
 
 	return Render(c, blog.Post(post))
 }
