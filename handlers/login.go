@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"fmt"
+	"strconv"
+
 	"goethe/auth"
+	"goethe/data"
 	"goethe/db"
 	"goethe/util"
 	"goethe/views/components"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,23 +20,20 @@ func LoginForm(c echo.Context) error {
 	}
 
 	if sf {
-		return Render(c, components.NavigationBarWForm(components.LoginFormValues{}, make(map[string]string), true))
+		return Render(c, components.NavigationBarWForm(components.AccountFormValues{}, make(map[string]string), true))
 	}
 
-	return Render(c, components.NavigationBar(true))
+	return Render(c, components.NavigationBar())
 }
 
 func Login(c echo.Context) error {
-	v, e := validateLoginForm(c, false)
+	u, v, e := validateLoginForm(c)
 	if len(e) > 0 {
 		fmt.Println(v, e)
 		return Render(c, components.NavigationBarWForm(v, e, true))
 	}
 
-    un := v.Username // username
-    user := db.GetUserAccount(un)
-
-	jwt, err := auth.CreateJWT(user)
+	jwt, err := auth.CreateJWT(u)
 	if err != nil {
 		fmt.Println("Failed to create JWT", err)
 	}
@@ -44,66 +43,23 @@ func Login(c echo.Context) error {
 		fmt.Println("Cookie failed to write")
 	}
 
-	return Render(c, components.NavigationBar(true))
+	return Render(c, components.NavigationBar())
 }
 
-func RegisterForm(c echo.Context) error {
-	u := c.FormValue("username")
-	p := c.FormValue("password")
-	pc := c.FormValue("confirmation")
+func validateLoginForm(c echo.Context) (data.User, components.AccountFormValues, map[string]string) {
+	un := c.FormValue("username")
+	pw := c.FormValue("password")
 
-	v := components.LoginFormValues{
-		Username:     u,
-		Password:     p,
-		Confirmation: pc,
+	v := components.AccountFormValues{
+		Username: un,
+		Password: pw,
 	}
-
-    fmt.Println(v)
-
-	return Render(c, components.RegisterForm(v, make(map[string]string)))
-}
-
-func Register(c echo.Context) error {
-	v, e := validateLoginForm(c, true)
-	if len(e) > 0 {
-		fmt.Println(v, e)
-		return Render(c, components.NavigationBarWForm(v, e, false))
-	}
-
-    un := v.Username // username
-    user := db.GetUserAccount(un)
-
-	jwt, err := auth.CreateJWT(user)
-	if err != nil {
-		fmt.Println("Failed to create JWT", err)
-	}
-
-	err = util.WriteCookie(c, "JWT", jwt)
-	if err != nil {
-		fmt.Println("Cookie failed to write")
-	}
-
-	return Render(c, components.NavigationBar(true))
-}
-
-func validateLoginForm(c echo.Context, checkConfirm bool) (components.LoginFormValues, map[string]string) {
-	u := c.FormValue("username")
-	p := c.FormValue("password")
-	pc := c.FormValue("confirmation")
-
-	v := components.LoginFormValues{
-		Username:     u,
-		Password:     p,
-		Confirmation: pc,
-	}
-
 	e := make(map[string]string)
-	if len(p) < 5 {
-		e["PW_LEN"] = "Password length must be at least 5"
-	}
-	if checkConfirm && p != pc {
-		e["PW_CONF"] = "Confirmation does not match password"
+
+	u, err := db.GetUserAccount(v.Username)
+	if err != nil || !auth.CheckPassword(u.Password, pw) {
+		e["INVALID_LOGIN"] = "Incorrect username or password"
 	}
 
-	return v, e
+	return u, v, e
 }
