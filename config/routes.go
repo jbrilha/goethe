@@ -29,4 +29,6 @@ func SetRoutes(e *echo.Echo) {
 
 	e.GET("/blog", handlers.BlogBase)
     e.GET("/blog/posts/:id", handlers.BlogPost)
+
+    e.GET("/profile/:username", handlers.ProfileBase)
 }
