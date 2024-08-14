@@ -9,7 +9,7 @@ type AccountFormValues struct {
 }
 
 templ LoginForm(values AccountFormValues, errors map[string]string) {
-	<div id="login-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white">
+	<div id="login-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white z-50">
 		<form hx-post="/login" hx-swap="outerHTML" hx-target="#navbar" class="border border-black shadow-2xl p-4">
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">

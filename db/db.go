@@ -28,6 +28,10 @@ func Init(connStr string) {
 	createUserTable()
 	createPostTable()
 
+	// for _, post := range data.GetPosts() {
+	// 	InsertBlogPost(post)
+	// }
+
 	// u := data.User{
 	// 	Username:  "root",
 	// 	Password:  "root",
@@ -145,10 +149,6 @@ func createPostTable() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	for _, post := range data.GetPosts() {
-		InsertBlogPost(post)
-	}
 }
 
 func checkTz() {
@@ -179,7 +179,7 @@ func InsertBlogPost(p data.Post) int {
 	return pk
 }
 
-func GetBlogPost(id int) data.Post {
+func GetBlogPost(id int) (data.Post, error) {
 	query := `SELECT * FROM post where ID = $1`
 
 	post := data.Post{}
@@ -192,13 +192,14 @@ func GetBlogPost(id int) data.Post {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Fatalf("nooooooooo %d", id)
+			log.Printf("nooooooooo %d", id)
+            return data.Post{}, err
 		}
 		fmt.Println("wtf", id)
-		log.Fatal(err)
+            return data.Post{}, err
 	}
 
-	return post
+	return post, nil
 }
 
 func GetBlogPosts() []data.Post {

@@ -54,7 +54,7 @@ func ApplyEchoConfig(e *echo.Echo) {
 			}
 			reqConLen = fmt.Sprintf("%s%vB%s", ansi.BoldBlue, reqConLen, ansi.None)
 
-			resConLen := strconv.Itoa(int(c.Response().Size))
+			resConLen := strconv.FormatInt(c.Response().Size, 10)
 			resConLen = fmt.Sprintf("%s%vB%s", ansi.Blue, resConLen, ansi.None)
 
 			if v.Error == nil {
