@@ -2,16 +2,16 @@ package components
 
 import "goethe/util"
 
-type LoginFormValues struct {
+type AccountFormValues struct {
 	Username     string
 	Password     string
 	Confirmation string
 }
 
-templ LoginForm(values LoginFormValues, errors map[string]string) {
+templ LoginForm(values AccountFormValues, errors map[string]string) {
 	<div id="login-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white">
 		<form hx-post="/login" hx-swap="outerHTML" hx-target="#navbar" class="border border-black shadow-2xl p-4">
-			<div class="mb-4">
+			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
 				</label>
@@ -24,7 +24,7 @@ templ LoginForm(values LoginFormValues, errors map[string]string) {
 					value={ values.Username }
 				/>
 			</div>
-			<div class="mb-4">
+			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
 					Password
 				</label>
@@ -40,7 +40,10 @@ templ LoginForm(values LoginFormValues, errors map[string]string) {
 					{ errors["PW_LEN"] }
 				</div>
 			</div>
-			<div id="login-form-buttons" class="flex items-center justify-between">
+			<div class="text-red-400 text-sm mb-2">
+				{ errors["INVALID_LOGIN"] }
+			</div>
+			<div id="login-form-buttons" class="flex items-center justify-between mt-2">
 				<button
 					class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-1 px-2"
 				>
@@ -59,10 +62,10 @@ templ LoginForm(values LoginFormValues, errors map[string]string) {
 	</div>
 }
 
-templ RegisterForm(values LoginFormValues, errors map[string]string) {
+templ RegisterForm(values AccountFormValues, errors map[string]string) {
 	<div id="register-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white">
 		<form hx-post="/register" hx-swap="outerHTML" hx-target="#navbar" class="border border-black shadow-2xl p-4">
-			<div class="mb-4">
+			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
 				</label>
@@ -75,8 +78,11 @@ templ RegisterForm(values LoginFormValues, errors map[string]string) {
 					placeholder="Username"
 					value={ values.Username }
 				/>
+				<div class="text-red-400 text-sm">
+					{ errors["USER_EXISTS"] }
+				</div>
 			</div>
-			<div class="mb-4">
+			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
 					Password
 				</label>
@@ -93,7 +99,7 @@ templ RegisterForm(values LoginFormValues, errors map[string]string) {
 					{ errors["PW_LEN"] }
 				</div>
 			</div>
-			<div class="mb-4">
+			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="confirmation">
 					Confirmation
 				</label>
@@ -113,10 +119,10 @@ templ RegisterForm(values LoginFormValues, errors map[string]string) {
 			<div id="register-form-buttons" class="flex items-center justify-between">
 				<button
 					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
-						hx-get="/login"
-						hx-vals={ util.QueryParams("showForm", true) }
-						hx-swap="outerHTML"
-						hx-target="#navbar"
+					hx-get="/login"
+					hx-vals={ util.QueryParams("showForm", true) }
+					hx-swap="outerHTML"
+					hx-target="#navbar"
 				>
 					Login
 				</button>

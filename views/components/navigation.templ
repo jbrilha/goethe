@@ -2,7 +2,7 @@ package components
 
 import "goethe/util"
 
-templ NavigationBar(loggedIn bool) {
+templ NavigationBar() {
 	<div id="navbar" class="border-b-2 border-b-black">
 		<div class="row-auto py-3 font-baskerville">
 			<div class="flex justify-between items-center px-4 relative">
@@ -30,7 +30,7 @@ templ NavigationBar(loggedIn bool) {
 	</div>
 }
 
-templ NavigationBarWForm(values LoginFormValues, errors map[string]string, loginForm bool) {
+templ NavigationBarWForm(values AccountFormValues, errors map[string]string, loginForm bool) {
 	<div id="navbar" class="border-b-2 border-b-black">
 		<div class="row-auto py-3 font-baskerville">
 			<div class="flex justify-between items-center px-4 relative">
