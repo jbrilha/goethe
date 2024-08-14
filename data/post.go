@@ -4,17 +4,18 @@ import "time"
 
 type Post struct {
 	ID        int
+	Creator   string
 	Title     string
 	Content   string
-	Timestamp time.Time
+	CreatedAt time.Time
 }
 
 func GetPosts() []Post {
 	return []Post{
-		{ID: 1, Title: "What is Lorem IpsumWhat is Lorem IpsumWhat is Lorem IpsumWhat is Lorem Ipsum", Content: ipsum1, Timestamp: time.Now()},
-		{ID: 2, Title: "Where does it come from", Content: ipsum2, Timestamp: time.Now()},
-		{ID: 3, Title: "Why do we use it", Content: ipsum3, Timestamp: time.Now()},
-		{ID: 4, Title: "Where can I get some", Content: ipsum4, Timestamp: time.Now()},
+		{ID: 1, Creator: "root", Title: "What is Lorem IpsumWhat is Lorem IpsumWhat is Lorem IpsumWhat is Lorem Ipsum", Content: ipsum1, CreatedAt: time.Now()},
+		{ID: 2, Creator: "root", Title: "Where does it come from", Content: ipsum2, CreatedAt: time.Now()},
+		{ID: 3, Creator: "root", Title: "Why do we use it", Content: ipsum3, CreatedAt: time.Now()},
+		{ID: 4, Creator: "root", Title: "Where can I get some", Content: ipsum4, CreatedAt: time.Now()},
 	}
 }
 
