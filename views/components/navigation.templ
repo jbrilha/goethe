@@ -3,36 +3,33 @@ package components
 import "goethe/util"
 
 templ NavigationBar() {
-	<div id="navbar" class="border-b-2 border-b-black">
-		<div class="row-auto py-3 font-baskerville">
-			<div class="flex justify-between items-center px-4 relative">
-				<div class="font-bold italic text-3xl">
-					<a href="/">Goethe</a>
-				</div>
-				<div class="text-2xl absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 space-x-8">
-					<a hx-get="/bookshelf" hx-target="#base" hx-push-url="true" href="">Bookshelf</a>
-					<a hx-get="/blog" hx-target="#base" hx-push-url="true" href="">Blog</a>
-				</div>
-				<div>
-					<button
-						id="login-button"
-						class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
-						hx-get="/login"
-						hx-vals={ util.QueryParams("showForm", true) }
-						hx-swap="outerHTML"
-						hx-target="#navbar"
-					>
-						Login
-					</button>
-				</div>
+	<div id="navbar" class="row-auto py-3 font-baskerville">
+		<div class="flex justify-between items-center px-4 relative">
+			<div class="font-bold italic text-3xl">
+				<a href="/">Goethe</a>
+			</div>
+			<div class="text-2xl absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 space-x-8">
+				<a hx-get="/bookshelf" hx-target="#base" hx-push-url="true" href="">Bookshelf</a>
+				<a hx-get="/blog" hx-target="#base" hx-push-url="true" href="">Blog</a>
+			</div>
+			<div>
+				<button
+					id="login-button"
+					class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
+					hx-get="/login"
+					hx-vals={ util.QueryParams("showForm", true) }
+					hx-swap="outerHTML"
+					hx-target="#navbar"
+				>
+					Login
+				</button>
 			</div>
 		</div>
 	</div>
 }
 
 templ NavigationBarWForm(values AccountFormValues, errors map[string]string, loginForm bool) {
-	<div id="navbar" class="border-b-2 border-b-black">
-		<div class="row-auto py-3 font-baskerville">
+		<div id="navbar" class="row-auto py-3 font-baskerville">
 			<div class="flex justify-between items-center px-4 relative">
 				<div class="font-bold italic text-3xl">
 					<a href="/">Goethe</a>
@@ -59,5 +56,4 @@ templ NavigationBarWForm(values AccountFormValues, errors map[string]string, log
 				</div>
 			</div>
 		</div>
-	</div>
 }
