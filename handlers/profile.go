@@ -1,29 +1,26 @@
 package handlers
 
 import (
-	"fmt"
 	"goethe/db"
-	"goethe/views/blog"
 	"goethe/views/profile"
-	"strconv"
+	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
 func ProfileBase(c echo.Context) error {
-	username := c.Param("username")
-    user, _ := db.GetUserAccount(username)
+	p := c.Param("username")
+
+	if un := strings.TrimSuffix(p, ".json"); un != p {
+		user, err := db.GetUserAccount(un)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
+		}
+		return c.JSON(http.StatusOK, user)
+	}
+
+    user, _ := db.GetUserAccount(p)
 	return Render(c, profile.Index(user))
 }
 
-func Post(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
-    if err != nil {
-		fmt.Println("Invalid query param")
-    }
-
-    fmt.Println(id)
-    post, _ := db.GetBlogPost(id)
-
-	return Render(c, blog.Post(post))
-}
