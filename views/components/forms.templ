@@ -8,9 +8,19 @@ type AccountFormValues struct {
 	Confirmation string
 }
 
+templ SignInForm() {
+	<div
+		id="sign-in-form"
+		class="absolute -right-1 -translate-x-5 -translate-y-px bg-white z-50"
+		_="on click from elsewhere remove me"
+	>
+		{ children... }
+	</div>
+}
+
 templ LoginForm(values AccountFormValues, errors map[string]string) {
-	<div id="login-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white z-50">
-		<form hx-post="/login" hx-swap="outerHTML" hx-target="#navbar" class="border border-black shadow-2xl p-4">
+	@SignInForm() {
+		<form hx-post="/login" hx-swap="outerHTML" class="border border-black shadow-2xl p-4">
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
@@ -52,19 +62,19 @@ templ LoginForm(values AccountFormValues, errors map[string]string) {
 				<button
 					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
 					hx-get="/register"
-					hx-target="#login-form"
+					hx-target="#sign-in-form"
 					hx-swap="outerHTML"
 				>
 					Register
 				</button>
 			</div>
 		</form>
-	</div>
+	}
 }
 
 templ RegisterForm(values AccountFormValues, errors map[string]string) {
-	<div id="register-form" class="absolute -right-1 -translate-x-5 -translate-y-px bg-white">
-		<form hx-post="/register" hx-swap="outerHTML" hx-target="#navbar" class="border border-black shadow-2xl p-4">
+	@SignInForm() {
+		<form hx-post="/register" hx-swap="outerHTML" class="border border-black shadow-2xl p-4">
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
@@ -122,7 +132,7 @@ templ RegisterForm(values AccountFormValues, errors map[string]string) {
 					hx-get="/login"
 					hx-vals={ util.QueryParams("showForm", true) }
 					hx-swap="outerHTML"
-					hx-target="#navbar"
+					hx-target="#sign-in-form"
 				>
 					Login
 				</button>
@@ -133,11 +143,11 @@ templ RegisterForm(values AccountFormValues, errors map[string]string) {
 				</button>
 			</div>
 		</form>
-	</div>
+	}
 }
 
 templ BookForm() {
-	<form hx-swap="beforeend" hx-target="#base" class="bg-yellow-200 shadow-2xl rounded px-6 py-4 mb-4">
+	<form id="book-form" hx-swap="beforeend" hx-target="#base" class="bg-yellow-200 shadow-2xl rounded px-6 py-4 mb-4">
 		<p class="text-xl font-bold mb-2">
 			Add/remove a book
 		</p>

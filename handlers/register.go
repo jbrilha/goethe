@@ -14,26 +14,16 @@ import (
 )
 
 func RegisterForm(c echo.Context) error {
-	u := c.FormValue("username")
-	p := c.FormValue("password")
-	pc := c.FormValue("confirmation")
+	v := components.AccountFormValues{}
+    e := make(map[string]string)
 
-	v := components.AccountFormValues{
-		Username:     u,
-		Password:     p,
-		Confirmation: pc,
-	}
-
-	fmt.Println(v)
-
-	return Render(c, components.RegisterForm(v, make(map[string]string)))
+	return Render(c, components.RegisterForm(v, e))
 }
 
 func Register(c echo.Context) error {
 	v, e := validateRegisterForm(c)
 	if len(e) > 0 {
-		fmt.Println(v, e)
-		return Render(c, components.NavigationBarWForm(v, e, false))
+		return Render(c, components.RegisterForm(v, e))
 	}
 
 	u := data.User{
@@ -59,7 +49,11 @@ func Register(c echo.Context) error {
 		fmt.Println("Cookie failed to write")
 	}
 
-	return Render(c, components.NavigationBar())
+    // c.Response().Header().Add("Hx-Reswap", "outerHTML")
+    c.Response().Header().Add("Hx-Retarget", "#sign-in")
+	c.String(200, "Logged in!")
+    return nil
+	// return Render(c, components.RegisterForm(v, e))
 }
 
 func validateRegisterForm(c echo.Context) (components.AccountFormValues, map[string]string) {

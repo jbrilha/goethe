@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"strconv"
 
 	"goethe/auth"
 	"goethe/data"
@@ -14,23 +13,17 @@ import (
 )
 
 func LoginForm(c echo.Context) error {
-	sf, err := strconv.ParseBool(c.FormValue("showForm"))
-	if err != nil {
-		fmt.Println("Failed to parse bool")
-	}
+	v := components.AccountFormValues{}
+    e := make(map[string]string)
 
-	if sf {
-		return Render(c, components.NavigationBarWForm(components.AccountFormValues{}, make(map[string]string), true))
-	}
-
-	return Render(c, components.NavigationBar())
+	return Render(c, components.LoginForm(v, e))
 }
 
 func Login(c echo.Context) error {
 	u, v, e := validateLoginForm(c)
 	if len(e) > 0 {
 		fmt.Println(v, e)
-		return Render(c, components.NavigationBarWForm(v, e, true))
+		return Render(c, components.LoginForm(v, e))
 	}
 
 	jwt, err := auth.CreateJWT(u)
@@ -43,7 +36,11 @@ func Login(c echo.Context) error {
 		fmt.Println("Cookie failed to write")
 	}
 
-	return Render(c, components.NavigationBar())
+	// c.Response().Header().Add("Hx-Reswap", "delete")
+	c.Response().Header().Add("Hx-Retarget", "#sign-in")
+	c.String(200, "Logged in!")
+	return nil
+	// return Render(c, components.NavigationBar())
 }
 
 func validateLoginForm(c echo.Context) (data.User, components.AccountFormValues, map[string]string) {
