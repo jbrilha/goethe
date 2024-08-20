@@ -6,7 +6,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func Init() error {
+func New() error {
 	err := godotenv.Load()
 	if err != nil {
 		return err
