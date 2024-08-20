@@ -11,8 +11,8 @@ import (
 func main() {
 	e := echo.New()
 
-	env.Init()
-	db.Init(env.DBConn())
+	env.New()
+	db.New(env.DBConn())
 	defer db.Close()
 
 	config.ApplyEchoConfig(e)
