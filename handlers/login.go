@@ -13,17 +13,18 @@ import (
 )
 
 func LoginForm(c echo.Context) error {
-	v := components.AccountFormValues{}
-    e := make(map[string]string)
+	ff := components.FormFill{
+		Values: components.AccountFormValues{},
+		Errors: make(map[string]string),
+	}
 
-	return Render(c, components.LoginForm(v, e))
+	return Render(c, components.LoginForm(ff))
 }
 
 func Login(c echo.Context) error {
-	u, v, e := validateLoginForm(c)
-	if len(e) > 0 {
-		fmt.Println(v, e)
-		return Render(c, components.LoginForm(v, e))
+	u, ff := validateLoginForm(c)
+	if len(ff.Errors) > 0 {
+		return Render(c, components.LoginForm(ff))
 	}
 
 	jwt, err := auth.CreateJWT(u)
@@ -43,20 +44,22 @@ func Login(c echo.Context) error {
 	// return Render(c, components.NavigationBar())
 }
 
-func validateLoginForm(c echo.Context) (data.User, components.AccountFormValues, map[string]string) {
+func validateLoginForm(c echo.Context) (data.User, components.FormFill) {
 	un := c.FormValue("username")
 	pw := c.FormValue("password")
 
-	v := components.AccountFormValues{
-		Username: un,
-		Password: pw,
+	ff := components.FormFill{
+		Values: components.AccountFormValues{
+			Username: un,
+			Password: pw,
+		},
+		Errors: make(map[string]string),
 	}
-	e := make(map[string]string)
 
-	u, err := db.GetUserAccount(v.Username)
+	u, err := db.GetUserAccountByUsername(ff.Values.Username)
 	if err != nil || !auth.CheckPassword(u.Password, pw) {
-		e["INVALID_LOGIN"] = "Incorrect username or password"
+		ff.Errors["INVALID_LOGIN"] = "Incorrect username or password"
 	}
 
-	return u, v, e
+	return u, ff
 }

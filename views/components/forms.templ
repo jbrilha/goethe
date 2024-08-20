@@ -1,6 +1,9 @@
 package components
 
-import "goethe/util"
+type FormFill struct {
+	Values AccountFormValues
+	Errors map[string]string
+}
 
 type AccountFormValues struct {
 	Username     string
@@ -18,7 +21,7 @@ templ SignInForm() {
 	</div>
 }
 
-templ LoginForm(values AccountFormValues, errors map[string]string) {
+templ LoginForm(ff FormFill) {
 	@SignInForm() {
 		<form hx-post="/login" hx-swap="outerHTML" class="border border-black shadow-2xl p-4">
 			<div class="mb-2">
@@ -31,7 +34,7 @@ templ LoginForm(values AccountFormValues, errors map[string]string) {
 					name="username"
 					type="text"
 					placeholder="Username"
-					value={ values.Username }
+					value={ ff.Values.Username }
 				/>
 			</div>
 			<div class="mb-2">
@@ -44,14 +47,14 @@ templ LoginForm(values AccountFormValues, errors map[string]string) {
 					name="password"
 					type="password"
 					placeholder="Password"
-					value={ values.Password }
+					value={ ff.Values.Password }
 				/>
 				<div class="text-red-400 text-sm">
-					{ errors["PW_LEN"] }
+					{ ff.Errors["PW_LEN"] }
 				</div>
 			</div>
 			<div class="text-red-400 text-sm mb-2">
-				{ errors["INVALID_LOGIN"] }
+				{ ff.Errors["INVALID_LOGIN"] }
 			</div>
 			<div id="login-form-buttons" class="flex items-center justify-between mt-2">
 				<button
@@ -72,7 +75,7 @@ templ LoginForm(values AccountFormValues, errors map[string]string) {
 	}
 }
 
-templ RegisterForm(values AccountFormValues, errors map[string]string) {
+templ RegisterForm(ff FormFill) {
 	@SignInForm() {
 		<form hx-post="/register" hx-swap="outerHTML" class="border border-black shadow-2xl p-4">
 			<div class="mb-2">
@@ -86,10 +89,10 @@ templ RegisterForm(values AccountFormValues, errors map[string]string) {
 					name="username"
 					type="text"
 					placeholder="Username"
-					value={ values.Username }
+					value={ ff.Values.Username }
 				/>
 				<div class="text-red-400 text-sm">
-					{ errors["USER_EXISTS"] }
+					{ ff.Errors["USER_EXISTS"] }
 				</div>
 			</div>
 			<div class="mb-2">
@@ -103,10 +106,10 @@ templ RegisterForm(values AccountFormValues, errors map[string]string) {
 					name="password"
 					type="password"
 					placeholder="Password"
-					value={ values.Password }
+					value={ ff.Values.Password }
 				/>
 				<div class="text-red-400 text-sm">
-					{ errors["PW_LEN"] }
+					{ ff.Errors["PW_LEN"] }
 				</div>
 			</div>
 			<div class="mb-2">
@@ -120,17 +123,16 @@ templ RegisterForm(values AccountFormValues, errors map[string]string) {
 					name="confirmation"
 					type="password"
 					placeholder="Confirmation"
-					value={ values.Confirmation }
+					value={ ff.Values.Confirmation }
 				/>
 				<div class="text-red-400 text-sm">
-					{ errors["PW_CONF"] }
+					{ ff.Errors["PW_CONF"] }
 				</div>
 			</div>
 			<div id="register-form-buttons" class="flex items-center justify-between">
 				<button
 					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
 					hx-get="/login"
-					hx-vals={ util.QueryParams("showForm", true) }
 					hx-swap="outerHTML"
 					hx-target="#sign-in-form"
 				>

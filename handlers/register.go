@@ -14,22 +14,24 @@ import (
 )
 
 func RegisterForm(c echo.Context) error {
-	v := components.AccountFormValues{}
-    e := make(map[string]string)
+	ff := components.FormFill{
+		Values: components.AccountFormValues{},
+		Errors: make(map[string]string),
+	}
 
-	return Render(c, components.RegisterForm(v, e))
+	return Render(c, components.RegisterForm(ff))
 }
 
 func Register(c echo.Context) error {
-	v, e := validateRegisterForm(c)
-	if len(e) > 0 {
-		return Render(c, components.RegisterForm(v, e))
+	ff := validateRegisterForm(c)
+	if len(ff.Errors) > 0 {
+		return Render(c, components.RegisterForm(ff))
 	}
 
 	u := data.User{
-		Username:  v.Username,
+		Username:  ff.Values.Username,
 		Email:     "nomail",
-		Password:  v.Password,
+		Password:  ff.Values.Password,
 		CreatedAt: time.Now(),
 	}
 
@@ -49,36 +51,38 @@ func Register(c echo.Context) error {
 		fmt.Println("Cookie failed to write")
 	}
 
-    // c.Response().Header().Add("Hx-Reswap", "outerHTML")
-    c.Response().Header().Add("Hx-Retarget", "#sign-in")
+	// c.Response().Header().Add("Hx-Reswap", "outerHTML")
+	c.Response().Header().Add("Hx-Retarget", "#sign-in")
 	c.String(200, "Logged in!")
-    return nil
+	return nil
 	// return Render(c, components.RegisterForm(v, e))
 }
 
-func validateRegisterForm(c echo.Context) (components.AccountFormValues, map[string]string) {
+func validateRegisterForm(c echo.Context) components.FormFill {
 	un := c.FormValue("username")
 	pw := c.FormValue("password")
 	pwc := c.FormValue("confirmation")
 
-	v := components.AccountFormValues{
-		Username:     un,
-		Password:     pw,
-		Confirmation: pwc,
-	}
+	ff := components.FormFill{
+		Values: components.AccountFormValues{
+			Username:     un,
+			Password:     pw,
+			Confirmation: pwc,
+		},
 
-	e := make(map[string]string)
+		Errors: make(map[string]string),
+	}
 	if len(pw) < 5 {
-		e["PW_LEN"] = "Password length must be at least 5"
+		ff.Errors["PW_LEN"] = "Password length must be at least 5"
 	}
 	if pw != pwc {
-		e["PW_CONF"] = "Confirmation does not match password"
+		ff.Errors["PW_CONF"] = "Confirmation does not match password"
 	}
 
 	exists, _ := db.UserAccountExists(un)
 	if exists {
-		e["USER_EXISTS"] = "Username already taken"
+		ff.Errors["USER_EXISTS"] = "Username already taken"
 	}
 
-	return v, e
+	return ff
 }
