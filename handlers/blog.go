@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"fmt"
-	"goethe/db"
-	"goethe/views/blog"
-	"goethe/views/routes"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"goethe/db"
+	"goethe/views/blog"
+	"goethe/views/routes"
 
 	"github.com/labstack/echo/v4"
 )
