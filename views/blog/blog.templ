@@ -1,6 +1,8 @@
 package blog
 
 import (
+    "fmt"
+
 	"goethe/data"
 	"goethe/util"
 	"goethe/views/layouts"
@@ -11,7 +13,7 @@ templ Index(posts []data.Post) {
 		<div id="blog-page" class="py-5 flex justify-center">
 			<ul>
 				for _, post := range posts {
-					<li class="mb-4">
+					<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
 						@PostPreview(post)
 					</li>
 				}
@@ -31,7 +33,7 @@ templ PostPreview(p data.Post) {
 				class="mb-1 text-3xl font-bold line-clamp-2 hover:underline"
 				href=""
 				hx-get={ util.PathParams("/blog/posts", p.ID) }
-				hx-target="#base"
+                hx-target="#base"
 				hx-push-url="true"
 			>
 				{ p.Title }

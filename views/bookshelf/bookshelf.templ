@@ -5,17 +5,17 @@ import (
 	"goethe/views/layouts"
 )
 
-templ AddBook(book data.Book) {
-	<h1>Added { book.Title } { book.Author }</h1>
+templ AddBook(b data.Book) {
+	<h1>Added { b.Title } { b.Authors[0] }</h1>
 }
 
-templ RemoveBook(book data.Book) {
-	<h1>Removed { book.Title } { book.Author }</h1>
+templ RemoveBook(b data.Book) {
+	<h1>Removed { b.Title } { b.Authors[0] }</h1>
 }
 
-templ Show(book data.Book) {
+templ Show(b data.Book) {
 	@layouts.Base() {
-		<h1>Hello { book.Title } from Books Hot Reloaded</h1>
+		<h1>Hello { b.Title } from Books Hot Reloaded</h1>
 	}
 }
 
@@ -25,10 +25,10 @@ templ Index(books []data.Book) {
 			<h1 class="p-5 text-2xl">Bookshelf page placeholder</h1>
 			<div class="px-5">
 				<ul>
-					for _, book := range books {
+					for _, b := range books {
 						<li>
 							<button disabled class="bg-black text-white p-2 my-1">
-								{ book.Title } - { book.Author }
+								{ b.Title } - { b.Authors[0] }
 							</button>
 						</li>
 					}
