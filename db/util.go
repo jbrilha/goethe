@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"goethe/data"
+	// "goethe/data"
 
 	_ "github.com/lib/pq"
 )
@@ -28,9 +28,9 @@ func New(connStr string) {
 	createUserTable()
 	createPostTable()
 
-	for _, post := range data.GetPosts() {
-		InsertBlogPost(post)
-	}
+	// for _, post := range data.GetPosts() {
+	// 	InsertBlogPost(post)
+	// }
 
 	// u := data.User{
 	// 	Username:  "root",
@@ -42,6 +42,14 @@ func New(connStr string) {
 	// pk := InsertUser(u)
 	// fmt.Println(pk)
 
+}
+
+func emptyNullString(ns sql.NullString) string {
+    if ns.Valid {
+        return ns.String
+    }
+
+    return ""
 }
 
 func Close() {

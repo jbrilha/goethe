@@ -27,7 +27,7 @@ func InsertBlogPost(p data.Post) int {
 }
 
 func GetBlogPost(id int) (data.Post, error) {
-	query := `SELECT * FROM post where ID = $1`
+	query := `SELECT * FROM post WHERE id = $1`
 
 	post := data.Post{}
 
@@ -36,7 +36,9 @@ func GetBlogPost(id int) (data.Post, error) {
 		&post.Creator,
 		&post.Title,
 		&post.Content,
-		&post.CreatedAt)
+		&post.CreatedAt,
+		&post.Views,
+	)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -84,7 +86,7 @@ func GetBlogPosts() []data.Post {
 			Title:     title,
 			Content:   content,
 			CreatedAt: createdAt,
-            Views: views,
+			Views:     views,
 		})
 	}
 
