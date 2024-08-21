@@ -1,5 +1,7 @@
 package components
 
+import "goethe/auth"
+
 templ NavigationBar() {
 	<nav id="navbar" class="row-auto py-3 font-baskerville">
 		<div class="flex justify-between items-center px-4 relative">
@@ -11,7 +13,11 @@ templ NavigationBar() {
 				<a hx-get="/blog" hx-target="#base" hx-push-url="true" href="">Blog</a>
 			</div>
 			<div id="sign-in">
-				@SignInButton()
+				if !auth.IsAuthenticated(ctx) {
+					@SignInButton()
+				} else {
+                    @AccountButton()
+                }
 			</div>
 		</div>
 	</nav>

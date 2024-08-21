@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -40,7 +41,10 @@ func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 
 			claims := token.Claims.(jwt.MapClaims)
 
-            fmt.Println("CLAIMS:", claims)
+			fmt.Println("CLAIMS:", claims)
+			fmt.Println("TOKEN:", token.Raw)
+
+			// c.Set("JWT", token.Raw)
 
 		}
 		return fn(c)
@@ -76,8 +80,28 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 	})
 }
 
+func IsAuthenticated(c context.Context) bool {
+	jwtValue := c.Value("JWT")
+	if jwtValue == nil {
+		fmt.Println("JWT token is missing")
+		return false
+	}
+
+	jwtString, ok := jwtValue.(string)
+	if !ok {
+		fmt.Println("JWT token is not a string") // this should never happen but alas
+		return false
+	}
+	_, err := validateJWT(jwtString)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
 func CheckPassword(encryptedPassword, password string) bool {
-    return encryptedPassword == password
+	return encryptedPassword == password
 }
 
 // func CheckForJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.MiddlewareFunc {
