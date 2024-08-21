@@ -1,11 +1,26 @@
 package components
 
 templ SignInButton() {
-	<button
-		class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
-		hx-get="/login"
-		hx-swap="afterend"
-	>
-		Sign In
-	</button>
+	<div id="sign-in-button">
+		<button
+			class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
+			hx-get="/login"
+			hx-swap="afterend"
+		>
+			Sign In
+		</button>
+	</div>
 }
+
+templ AccountButton() {
+	<div id="account-button">
+		<button
+			class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
+			hx-get="/account"
+			hx-swap="afterend"
+		>
+			Account
+		</button>
+	</div>
+}
+

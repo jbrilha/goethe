@@ -27,7 +27,7 @@ func Login(c echo.Context) error {
 		return Render(c, components.LoginForm(ff))
 	}
 
-	jwt, err := auth.CreateJWT(u)
+	jwt, err := auth.CreateJWT(u, ff.RememberMe)
 	if err != nil {
 		fmt.Println("Failed to create JWT", err)
 	}
@@ -37,22 +37,22 @@ func Login(c echo.Context) error {
 		fmt.Println("Cookie failed to write")
 	}
 
-	// c.Response().Header().Add("Hx-Reswap", "delete")
-	c.Response().Header().Add("Hx-Retarget", "#sign-in")
-	c.String(200, "Logged in!")
-	return nil
-	// return Render(c, components.NavigationBar())
+	c.Response().Header().Add("Hx-Reswap", "outerHTML")
+	c.Response().Header().Add("Hx-Retarget", "#sign-in-button")
+	return Render(c, components.AccountButton())
 }
 
 func validateLoginForm(c echo.Context) (data.User, components.FormFill) {
 	un := c.FormValue("username")
 	pw := c.FormValue("password")
+	rm := c.FormValue("remember-me")
 
 	ff := components.FormFill{
 		Values: components.AccountFormValues{
 			Username: un,
 			Password: pw,
 		},
+        RememberMe: rm != "",
 		Errors: make(map[string]string),
 	}
 

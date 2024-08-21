@@ -12,13 +12,11 @@ templ NavigationBar() {
 				<a hx-get="/bookshelf" hx-target="#base" hx-push-url="true" href="">Bookshelf</a>
 				<a hx-get="/blog" hx-target="#base" hx-push-url="true" href="">Blog</a>
 			</div>
-			<div id="sign-in">
-				if !auth.IsAuthenticated(ctx) {
-					@SignInButton()
-				} else {
-                    @AccountButton()
-                }
-			</div>
+			if !auth.IsAuthenticated(ctx) {
+				@SignInButton()
+			} else {
+				@AccountButton()
+			}
 		</div>
 	</nav>
 }

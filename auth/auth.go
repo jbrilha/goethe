@@ -51,9 +51,16 @@ func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func CreateJWT(u data.User) (string, error) {
+func CreateJWT(u data.User, remember bool) (string, error) {
+    var expiresAt *jwt.NumericDate
+    if remember {
+        expiresAt = jwt.NewNumericDate(time.Now().Add(720 * time.Hour)) // 30 days
+    } else {
+        expiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
+    }
+
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		ExpiresAt: expiresAt,
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		Issuer:    "goethe",

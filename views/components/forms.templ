@@ -1,8 +1,9 @@
 package components
 
 type FormFill struct {
-	Values AccountFormValues
-	Errors map[string]string
+	Values     AccountFormValues
+	RememberMe bool
+	Errors     map[string]string
 }
 
 type AccountFormValues struct {
@@ -23,7 +24,7 @@ templ SignInForm() {
 
 templ LoginForm(ff FormFill) {
 	@SignInForm() {
-		<form hx-post="/login" hx-swap="outerHTML" class="border border-black shadow-2xl p-4">
+		<form hx-post="/login" hx-swap="outerHTML" hx-target="#sign-in-form" class="border border-black shadow-2xl p-4">
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
@@ -49,9 +50,16 @@ templ LoginForm(ff FormFill) {
 					placeholder="Password"
 					value={ ff.Values.Password }
 				/>
-				<div class="text-red-400 text-sm">
-					{ ff.Errors["PW_LEN"] }
-				</div>
+			</div>
+			<div class="mb-2 flex items-center">
+				<input id="remember-me" name="remember-me" type="checkbox" value="remember" 
+                    if ff.RememberMe {
+                        checked
+                    }
+                />
+				<label class="text-gray-700 text-sm font-bold px-2" for="remember-me">
+					Remember me
+				</label>
 			</div>
 			<div class="text-red-400 text-sm mb-2">
 				{ ff.Errors["INVALID_LOGIN"] }
@@ -77,7 +85,7 @@ templ LoginForm(ff FormFill) {
 
 templ RegisterForm(ff FormFill) {
 	@SignInForm() {
-		<form hx-post="/register" hx-swap="outerHTML" class="border border-black shadow-2xl p-4">
+		<form hx-post="/register" hx-swap="outerHTML" hx-target="#sign-in-form" class="border border-black shadow-2xl p-4">
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
@@ -114,7 +122,7 @@ templ RegisterForm(ff FormFill) {
 			</div>
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="confirmation">
-					Confirmation
+					Password Confirmation
 				</label>
 				<input
 					required
@@ -128,6 +136,16 @@ templ RegisterForm(ff FormFill) {
 				<div class="text-red-400 text-sm">
 					{ ff.Errors["PW_CONF"] }
 				</div>
+			</div>
+			<div class="mb-2 flex items-center">
+				<input id="remember-me" name="remember-me" type="checkbox" value="remember"
+                    if ff.RememberMe {
+                        checked
+                    }
+                />
+				<label class="text-gray-700 text-sm font-bold px-2" for="remember-me">
+					Remember me
+				</label>
 			</div>
 			<div id="register-form-buttons" class="flex items-center justify-between">
 				<button
