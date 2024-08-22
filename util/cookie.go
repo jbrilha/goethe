@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func WriteCookie(c echo.Context, name string, value string) error {
+func WriteCookie(c echo.Context, name, value string) error {
 	cookie := new(http.Cookie)
 	cookie.Name = name
     cookie.Path = "/"
@@ -25,14 +25,14 @@ func WriteCookie(c echo.Context, name string, value string) error {
 func ReadCookie(c echo.Context, cookieName string) (*http.Cookie, error) {
 	cookie, err := c.Cookie(cookieName)
 	if err != nil {
-        fmt.Println("erred in read")
+        // fmt.Println("erred in read cookie")
 		return nil, err
 	}
 
 	return cookie, nil
 }
 
-func readAllCookies(c echo.Context) error {
+func ReadAllCookies(c echo.Context) error {
 	for _, cookie := range c.Cookies() {
 		fmt.Println(cookie.Name)
 		fmt.Println(cookie.Value)

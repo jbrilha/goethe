@@ -12,9 +12,9 @@ import (
 func Render(c echo.Context, comp templ.Component) error {
 	ctx := c.Request().Context()
 
-	cookie, err := util.ReadCookie(c, "JWT")
+	jwtCookie, err := util.ReadCookie(c, "JWT")
 	if err == nil {
-		ctx = context.WithValue(context.Background(), "JWT", cookie.Value)
+		ctx = context.WithValue(context.Background(), "JWT", jwtCookie.Value)
 		ctx = c.Request().WithContext(ctx).Context()
 	}
 
