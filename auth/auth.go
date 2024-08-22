@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -18,21 +19,21 @@ import (
 // TODO this can probably be improved but I'm not sure how to do error handling with HTMX yet
 func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := util.ReadCookie(c, "JWT")
+		jwtCookie, err := util.ReadCookie(c, "JWT")
 		if err != nil {
 			fmt.Println("err reading cookie in jwt middleware", err)
 			if c.Request().Header.Get("HX-Request") != "" {
-				c.Response().Header().Add("HX-Retarget", "#base")
+				c.Response().Header().Add("HX-Retarget", "#main")
 				c.Response().Header().Add("HX-Reswap", "innerHTML")
 				return altfn(c)
 			}
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
 		} else {
-			token, err := validateJWT(cookie.Value)
+			token, err := validateJWT(jwtCookie.Value)
 			if err != nil {
 				fmt.Println(err)
 				if c.Request().Header.Get("HX-Request") != "" {
-					c.Response().Header().Add("HX-Retarget", "#base")
+					c.Response().Header().Add("HX-Retarget", "#main")
 					c.Response().Header().Add("HX-Reswap", "innerHTML")
 					return altfn(c)
 				}
@@ -52,12 +53,12 @@ func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func CreateJWT(u data.User, remember bool) (string, error) {
-    var expiresAt *jwt.NumericDate
-    if remember {
-        expiresAt = jwt.NewNumericDate(time.Now().Add(720 * time.Hour)) // 30 days
-    } else {
-        expiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
-    }
+	var expiresAt *jwt.NumericDate
+	if remember {
+		expiresAt = jwt.NewNumericDate(time.Now().Add(720 * time.Hour)) // 30 days
+	} else {
+		expiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
+	}
 
 	claims := jwt.RegisteredClaims{
 		ExpiresAt: expiresAt,
@@ -75,6 +76,31 @@ func CreateJWT(u data.User, remember bool) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
+func WriteJWTCookie(c echo.Context, jwt string) error {
+	token, err := validateJWT(jwt)
+	if err != nil {
+        log.Println("Invalid JWT token in cookie")
+        return err
+	}
+
+    expiry, err := token.Claims.GetExpirationTime()
+	if err != nil {
+        log.Println("Invalid JWT expiration time")
+        return err
+	}
+
+	cookie := new(http.Cookie)
+	cookie.Name = "JWT"
+	cookie.Path = "/"
+	cookie.Value = jwt
+	cookie.Expires = expiry.Time
+	cookie.HttpOnly = true
+	cookie.Secure = true
+	cookie.SameSite = http.SameSiteLaxMode
+	c.SetCookie(cookie)
+	return nil
+}
+
 func validateJWT(tokenString string) (*jwt.Token, error) {
 	secret := env.JWTSecret()
 
@@ -90,13 +116,13 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 func IsAuthenticated(c context.Context) bool {
 	jwtValue := c.Value("JWT")
 	if jwtValue == nil {
-		fmt.Println("JWT token is missing")
+		// fmt.Println("JWT token is missing")
 		return false
 	}
 
 	jwtString, ok := jwtValue.(string)
 	if !ok {
-		fmt.Println("JWT token is not a string") // this should never happen but alas
+		// fmt.Println("JWT token is not a string") // this should never happen but alas
 		return false
 	}
 	_, err := validateJWT(jwtString)

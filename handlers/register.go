@@ -7,7 +7,7 @@ import (
 	"goethe/auth"
 	"goethe/data"
 	"goethe/db"
-	"goethe/util"
+	// "goethe/util"
 	"goethe/views/components"
 
 	"github.com/labstack/echo/v4"
@@ -46,7 +46,7 @@ func Register(c echo.Context) error {
 		fmt.Println("Failed to create JWT", err)
 	}
 
-	err = util.WriteCookie(c, "JWT", jwt)
+	err = auth.WriteJWTCookie(c, jwt)
 	if err != nil {
 		fmt.Println("Cookie failed to write")
 	}
