@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"fmt"
+	"log"
 
 	"goethe/auth"
 	"goethe/data"
 	"goethe/db"
-	// "goethe/util"
+
 	"goethe/views/components"
 
 	"github.com/labstack/echo/v4"
@@ -29,12 +29,12 @@ func Login(c echo.Context) error {
 
 	jwt, err := auth.CreateJWT(u, ff.RememberMe)
 	if err != nil {
-		fmt.Println("Failed to create JWT", err)
+		log.Println("Failed to create JWT", err)
 	}
 
 	err = auth.WriteJWTCookie(c, jwt)
 	if err != nil {
-		fmt.Println("Cookie failed to write")
+		log.Println("Cookie failed to write")
 	}
 
 	c.Response().Header().Add("Hx-Reswap", "outerHTML")
@@ -52,8 +52,8 @@ func validateLoginForm(c echo.Context) (data.User, components.FormFill) {
 			Username: un,
 			Password: pw,
 		},
-        RememberMe: rm != "",
-		Errors: make(map[string]string),
+		RememberMe: rm != "",
+		Errors:     make(map[string]string),
 	}
 
 	u, err := db.GetUserAccountByUsername(ff.Values.Username)

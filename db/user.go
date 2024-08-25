@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
@@ -45,7 +44,7 @@ func GetUserAccountByUsername(username string) (data.User, error) {
 			log.Println(err)
 			return data.User{}, err
 		}
-		fmt.Println("other err:", err)
+		log.Println("other err:", err)
 		return data.User{}, err
 	}
 
@@ -70,7 +69,7 @@ func GetUserAccountByID(id int) (data.User, error) {
 			log.Println(err)
 			return data.User{}, err
 		}
-		fmt.Println("other err:", err)
+		log.Println("other err:", err)
 		return data.User{}, err
 	}
 
@@ -142,6 +141,6 @@ func createUserTable() {
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }

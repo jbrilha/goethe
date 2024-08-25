@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"goethe/auth"
@@ -37,18 +37,18 @@ func Register(c echo.Context) error {
 
 	_, err := db.InsertUserAccount(&u)
 	if err != nil {
-		fmt.Println("err in insetion:", err)
+		log.Println("err in insetion:", err)
 	}
-	fmt.Println(u.ID)
+	log.Println(u.ID)
 
 	jwt, err := auth.CreateJWT(u, ff.RememberMe)
 	if err != nil {
-		fmt.Println("Failed to create JWT", err)
+		log.Println("Failed to create JWT", err)
 	}
 
 	err = auth.WriteJWTCookie(c, jwt)
 	if err != nil {
-		fmt.Println("Cookie failed to write")
+		log.Println("Cookie failed to write")
 	}
 
 	c.Response().Header().Add("Hx-Reswap", "outerHTML")

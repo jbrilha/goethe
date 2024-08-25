@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"goethe/data"
@@ -64,7 +63,7 @@ func GetBookByISBN(isbn string) (data.Book, error) {
 			log.Println(err)
 			return data.Book{}, err
 		}
-		fmt.Println("other err:", err)
+		log.Println("other err:", err)
 		return data.Book{}, err
 	}
 
@@ -151,13 +150,13 @@ func createBookTable() {
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	query = `CREATE UNIQUE INDEX unq_isbn10 ON book (isbn10) WHERE isbn10 IS NOT NULL;`
-
-	_, err = db.Exec(query)
-	if err != nil {
 		log.Println(err)
 	}
+
+	// query = `CREATE UNIQUE INDEX unq_isbn10 ON book (isbn10) WHERE isbn10 IS NOT NULL;`
+	//
+	// _, err = db.Exec(query)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 }

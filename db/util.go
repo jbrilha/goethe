@@ -2,10 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-
-	// "goethe/data"
 
 	_ "github.com/lib/pq"
 )
@@ -17,11 +14,11 @@ func New(connStr string) {
 	db, err = sql.Open("postgres", connStr)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	if err = db.Ping(); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	createBookTable()
@@ -40,7 +37,7 @@ func New(connStr string) {
 	// }
 	//
 	// pk := InsertUser(u)
-	// fmt.Println(pk)
+	// log.Println(pk)
 
 }
 
@@ -68,6 +65,6 @@ func checkTz() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(tz)
+	log.Println(tz)
 }
 

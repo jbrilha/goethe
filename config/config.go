@@ -2,8 +2,6 @@ package config
 
 import (
 	"fmt"
-	// "html/template"
-	// "io"
 	"strconv"
 	"strings"
 	"time"
@@ -13,14 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
-//
-// type Template struct {
-// 	Templates *template.Template
-// }
-//
-// func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-// 	return t.Templates.ExecuteTemplate(w, name, data)
-// }
 
 func ApplyEchoConfig(e *echo.Echo) {
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{

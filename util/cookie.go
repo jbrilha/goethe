@@ -1,7 +1,7 @@
 package util
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -25,7 +25,7 @@ func WriteCookie(c echo.Context, name, value string) error {
 func ReadCookie(c echo.Context, cookieName string) (*http.Cookie, error) {
 	cookie, err := c.Cookie(cookieName)
 	if err != nil {
-        // fmt.Println("erred in read cookie")
+        // log.Println("erred in read cookie")
 		return nil, err
 	}
 
@@ -34,8 +34,8 @@ func ReadCookie(c echo.Context, cookieName string) (*http.Cookie, error) {
 
 func ReadAllCookies(c echo.Context) error {
 	for _, cookie := range c.Cookies() {
-		fmt.Println(cookie.Name)
-		fmt.Println(cookie.Value)
+		log.Println(cookie.Name)
+		log.Println(cookie.Value)
 	}
 	// return c.String(http.StatusOK, "read all the cookies")
 	return nil
