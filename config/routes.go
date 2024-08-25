@@ -23,12 +23,15 @@ func SetRoutes(e *echo.Echo) {
 	e.POST("/register", handlers.Register)
 
 	e.GET("/bookshelf", handlers.BookshelfBase)
-	e.POST("/bookshelf/add-book", auth.WithJWT(handlers.AddBook, handlers.Route404))
-	e.DELETE("/bookshelf/remove-book", auth.WithJWT(handlers.RemoveBook, handlers.Route404))
+	e.POST("/bookshelf/add-book", auth.WithJWT(handlers.AddBook, handlers.NeedLogin))
+	e.DELETE("/bookshelf/remove-book", auth.WithJWT(handlers.RemoveBook, handlers.NeedLogin))
 	e.GET("/bookshelf/book", handlers.HandleBook)
 
 	e.GET("/blog", handlers.BlogBase)
-    e.GET("/blog/posts/:id", handlers.BlogPost)
+
+    e.GET("/posts/:id", handlers.BlogPost)
 
     e.GET("/profile/:username", handlers.ProfileBase)
+
+	e.GET("/notif", handlers.Notif)
 }
