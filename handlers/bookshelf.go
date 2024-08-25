@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fmt"
+	"log"
 	"goethe/data"
 	"goethe/db"
 	"goethe/views/bookshelf"
@@ -24,9 +24,9 @@ func AddBook(c echo.Context) error {
 	}
 	_, err := db.InsertBook(&b)
 	if err != nil {
-		fmt.Println("err in insetion:", err)
+		log.Println("err in insertion:", err)
 	}
-	fmt.Println(b.ID)
+	log.Println(b.ID)
 
 	return Render(c, bookshelf.AddBook(b))
 }
