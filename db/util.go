@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 
+	// "goethe/data"
+
 	_ "github.com/lib/pq"
 )
 
@@ -26,7 +28,7 @@ func New(connStr string) {
 	createPostTable()
 
 	// for _, post := range data.GetPosts() {
-	// 	InsertBlogPost(post)
+	// 	InsertBlogPost(&post)
 	// }
 
 	// u := data.User{

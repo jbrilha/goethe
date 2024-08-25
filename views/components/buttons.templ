@@ -35,3 +35,15 @@ templ CreatePostButton() {
 		</button>
 	</div>
 }
+
+templ ProfileButton() {
+	<div id="profile-button">
+		<button
+			class="border border-black bg-black hover:text-black hover:bg-white text-white font-bold px-3 py-1"
+			hx-get="/profile"
+			hx-swap="afterend"
+		>
+			Account
+		</button>
+	</div>
+}

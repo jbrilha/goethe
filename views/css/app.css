@@ -28,3 +28,12 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 8;
 }
+
+.fade {
+  transition: opacity 0.4s ease;
+  opacity: 1;
+}
+
+.fade-hidden {
+  opacity: 0;
+}
