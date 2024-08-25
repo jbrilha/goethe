@@ -21,20 +21,20 @@ func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		jwtCookie, err := util.ReadCookie(c, "JWT")
 		if err != nil {
-			fmt.Println("err reading cookie in jwt middleware", err)
+			log.Println("err reading cookie in jwt middleware", err)
 			if c.Request().Header.Get("HX-Request") != "" {
-				c.Response().Header().Add("HX-Retarget", "#main")
-				c.Response().Header().Add("HX-Reswap", "innerHTML")
+				// c.Response().Header().Add("HX-Retarget", "#notifications")
+				// c.Response().Header().Add("HX-Reswap", "beforeend")
 				return altfn(c)
 			}
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
 		} else {
-			token, err := validateJWT(jwtCookie.Value)
+			token, err := ValidateJWT(jwtCookie.Value)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				if c.Request().Header.Get("HX-Request") != "" {
-					c.Response().Header().Add("HX-Retarget", "#main")
-					c.Response().Header().Add("HX-Reswap", "innerHTML")
+					// c.Response().Header().Add("HX-Retarget", "#notifications")
+					// c.Response().Header().Add("HX-Reswap", "beforeend")
 					return altfn(c)
 				}
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
@@ -42,8 +42,8 @@ func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 
 			claims := token.Claims.(jwt.MapClaims)
 
-			fmt.Println("CLAIMS:", claims)
-			fmt.Println("TOKEN:", token.Raw)
+			log.Println("CLAIMS:", claims)
+			log.Println("TOKEN:", token.Raw)
 
 			// c.Set("JWT", token.Raw)
 
@@ -77,16 +77,16 @@ func CreateJWT(u data.User, remember bool) (string, error) {
 }
 
 func WriteJWTCookie(c echo.Context, jwt string) error {
-	token, err := validateJWT(jwt)
+	token, err := ValidateJWT(jwt)
 	if err != nil {
-        log.Println("Invalid JWT token in cookie")
-        return err
+		log.Println("Invalid JWT token in cookie")
+		return err
 	}
 
-    expiry, err := token.Claims.GetExpirationTime()
+	expiry, err := token.Claims.GetExpirationTime()
 	if err != nil {
-        log.Println("Invalid JWT expiration time")
-        return err
+		log.Println("Invalid JWT expiration time")
+		return err
 	}
 
 	cookie := new(http.Cookie)
@@ -101,7 +101,7 @@ func WriteJWTCookie(c echo.Context, jwt string) error {
 	return nil
 }
 
-func validateJWT(tokenString string) (*jwt.Token, error) {
+func ValidateJWT(tokenString string) (*jwt.Token, error) {
 	secret := env.JWTSecret()
 
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -116,16 +116,16 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 func IsAuthenticated(c context.Context) bool {
 	jwtValue := c.Value("JWT")
 	if jwtValue == nil {
-		// fmt.Println("JWT token is missing")
+		// log.Println("JWT token is missing")
 		return false
 	}
 
 	jwtString, ok := jwtValue.(string)
 	if !ok {
-		// fmt.Println("JWT token is not a string") // this should never happen but alas
+		// log.Println("JWT token is not a string") // this should never happen but alas
 		return false
 	}
-	_, err := validateJWT(jwtString)
+	_, err := ValidateJWT(jwtString)
 	if err != nil {
 		return false
 	}
@@ -142,7 +142,7 @@ func CheckPassword(encryptedPassword, password string) bool {
 // 		return func(c echo.Context) error {
 // 			cook, err := util.ReadCookie(c, "JWT")
 // 			if err != nil {
-// 				fmt.Println("err jwt middleware", err)
+// 				log.Println("err jwt middleware", err)
 // 				if c.Request().Header.Get("HX-Request") != "" {
 // 					return altfn(c)
 // 				}
@@ -150,7 +150,7 @@ func CheckPassword(encryptedPassword, password string) bool {
 // 			} else {
 // 				_, err = ValidateJWT(cook.Value)
 // 				if err != nil {
-// 					fmt.Println(err)
+// 					log.Println(err)
 // 					if c.Request().Header.Get("HX-Request") != "" {
 // 						return altfn(c)
 // 					}
