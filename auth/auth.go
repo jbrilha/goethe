@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"goethe/data"
@@ -66,7 +67,7 @@ func CreateJWT(u data.User, remember bool) (string, error) {
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		Issuer:    "goethe",
 		Subject:   u.Username,
-		ID:        string(u.ID),
+		ID:        strconv.Itoa(u.ID),
 		// Audience:  []string{"somebody_else"},
 	}
 
