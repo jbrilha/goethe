@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func InsertBlogPost(p data.Post) int {
+func InsertBlogPost(p *data.Post) (int, error) {
 	query := `INSERT INTO post(creator, title, content, created_at)
                 VALUES($1, $2, $3, $4)
                 RETURNING id`
@@ -20,10 +19,29 @@ func InsertBlogPost(p data.Post) int {
 
 	err := db.QueryRow(query, p.Creator, p.Title, p.Content, time.Now()).Scan(&pk)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return 0, err
 	}
 
-	return pk
+    p.ID = pk
+	return pk, nil
+}
+
+func IncrPostViews(id int) error {
+	query := `UPDATE post SET views = views + 1 WHERE id = $1`
+
+	_, err := db.Exec(query, id)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Printf("nooooooooo %d", id)
+			return err
+		}
+		log.Println("wtf", id)
+		return err
+	}
+
+	return nil
 }
 
 func GetBlogPost(id int) (data.Post, error) {
@@ -36,8 +54,8 @@ func GetBlogPost(id int) (data.Post, error) {
 		&post.Creator,
 		&post.Title,
 		&post.Content,
-		&post.CreatedAt,
 		&post.Views,
+		&post.CreatedAt,
 	)
 
 	if err != nil {
@@ -45,7 +63,7 @@ func GetBlogPost(id int) (data.Post, error) {
 			log.Printf("nooooooooo %d", id)
 			return data.Post{}, err
 		}
-		fmt.Println("wtf", id)
+		log.Println("wtf", id)
 		return data.Post{}, err
 	}
 
@@ -53,7 +71,7 @@ func GetBlogPost(id int) (data.Post, error) {
 }
 
 func GetBlogPosts() []data.Post {
-	query := `SELECT * FROM post`
+	query := `SELECT * FROM post ORDER BY created_at DESC`
 
 	var id int
 	var title string
@@ -75,7 +93,7 @@ func GetBlogPosts() []data.Post {
 	posts := []data.Post{}
 
 	for rows.Next() {
-		err := rows.Scan(&id, &creator, &title, &content, &createdAt, &views)
+		err := rows.Scan(&id, &creator, &title, &content, &views, &createdAt)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -85,8 +103,8 @@ func GetBlogPosts() []data.Post {
 			Creator:   creator,
 			Title:     title,
 			Content:   content,
-			CreatedAt: createdAt,
 			Views:     views,
+			CreatedAt: createdAt,
 		})
 	}
 
@@ -102,10 +120,10 @@ func createPostTable() {
                 content TEXT NOT NULL,
                 views INT DEFAULT 0,
                 created_at timestamp NOT NULL
-    )` // TODO drop table before using views
+    )`
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }

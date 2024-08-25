@@ -27,9 +27,12 @@ func SetRoutes(e *echo.Echo) {
 	e.DELETE("/bookshelf/remove-book", auth.WithJWT(handlers.RemoveBook, handlers.NeedLogin))
 	e.GET("/bookshelf/book", handlers.HandleBook)
 
-	e.GET("/blog", handlers.BlogBase)
+	e.GET("/posts", handlers.BlogBase)
 
     e.GET("/posts/:id", handlers.BlogPost)
+
+    e.GET("/posts/create", handlers.CreateBlogPostForm)
+    e.POST("/posts/create", auth.WithJWT(handlers.CreateBlogPostSubmission, handlers.NeedLogin))
 
     e.GET("/profile/:username", handlers.ProfileBase)
 

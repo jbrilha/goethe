@@ -7,8 +7,8 @@ type Post struct {
 	Creator   string    `json:"creator"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
 	Views     int       `json:"views"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func GetPosts() []Post {
