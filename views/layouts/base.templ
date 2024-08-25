@@ -16,22 +16,37 @@ templ Base() {
 		</head>
 		<body id="base" class="antialiased flex flex-col min-h-svh">
 			@Header()
-			<main id="main" class="flex-grow">
+			<main id="main" class="flex-grow overflow-y-auto pt-16">
 				{ children... }
 			</main>
+			@Notifications()
 			@Footer()
 		</body>
 	</html>
 }
 
+// should use this instead if I want scrollable notifs instead of removing oldest
+//_="on htmx:afterSettle set my.scrollTop to my.scrollHeight"
+// max-h-96 overflow-y-auto
+templ Notifications() {
+	<div
+		id="notifications"
+		class="fixed -right-0 -bottom-0 -translate-x-5 -translate-y-5 z-49 flex flex-col items-end shadow-red-50"
+		_="on htmx:afterSettle
+        repeat until me.querySelectorAll('#alert').length <= 5 
+        add .fade-hidden to me.querySelector('#alert') then wait 0.4s 
+        then remove me.querySelector('#alert')"
+	></div>
+}
+
 templ Header() {
-	<header class="border-b-2 border-b-black">
+	<header class="bg-white border-b-2 border-b-black fixed top-0 left-0 w-full z-50">
 		@components.NavigationBar()
 	</header>
 }
 
 templ Footer() {
-	<footer id="footer" class="border-t border-t-black">
+	<footer id="footer" class="bg-white border-t border-t-black z-49">
 		<div class="row-auto py-1 font-baskerville">
 			<div class="flex justify-center items-center px-4">
 				<div class="font-bold hover:underline">

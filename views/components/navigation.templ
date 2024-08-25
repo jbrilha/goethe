@@ -11,6 +11,7 @@ templ NavigationBar() {
 			<div class="text-2xl absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 space-x-8">
 				<a hx-get="/bookshelf" hx-target="#base" hx-push-url="true" href="">Bookshelf</a>
 				<a hx-get="/blog" hx-target="#base" hx-push-url="true" href="">Blog</a>
+				<a hx-get="/notif" hx-target="#notifications" hx-swap="beforeend" href="">Notif</a>
 			</div>
 			if !auth.IsAuthenticated(ctx) {
 				@SignInButton()
