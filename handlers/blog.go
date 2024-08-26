@@ -21,6 +21,18 @@ func BlogBase(c echo.Context) error {
 	return Render(c, blog.Index(db.GetBlogPosts()))
 }
 
+func CreatorCard(c echo.Context) error {
+    username := c.Param("creator")
+
+	u, err := db.GetUserAccountByUsername(username)
+	if err != nil {
+		log.Println(err)
+	}
+    log.Println(u)
+
+    return Render(c, blog.CreatorCard(u))
+}
+
 func BlogPost(c echo.Context) error {
 	param := c.Param("id")
 

@@ -123,6 +123,22 @@ templ PostInfoCard(p data.Post) {
 	</div>
 }
 
+templ CreatorCard(u data.User) {
+	<div
+		class="container max-w-screen-md px-4 py-2
+        rounded-lg bg-gray-200 border-b-2 border-l-2 border-gray-300 shadow-xl"
+	>
+		<div class="mb-2">
+			<h1 class="mb-1 text-xl font-bold">
+				{ u.Username }
+			</h1>
+			<p class="text-xs">
+				Member since: { u.CreatedAt.Format("01-02-2006") }
+			</p>
+		</div>
+	</div>
+}
+
 templ CreatePost() {
 	@layouts.Base() {
 		<div class="py-5 flex justify-center">
