@@ -29,6 +29,13 @@
   -webkit-line-clamp: 8;
 }
 
+.line-clamp-9 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 9;
+}
+
 .fade {
   transition: opacity 0.4s ease;
   opacity: 1;

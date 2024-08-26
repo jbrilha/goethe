@@ -1,6 +1,5 @@
 # files
 .DS_Store
-*_templ.go
 *_templ.txt
 
 .env
