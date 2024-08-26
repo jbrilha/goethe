@@ -28,7 +28,7 @@ func InsertUserAccount(u *data.User) (int, error) {
 }
 
 func GetUserAccountByUsername(username string) (data.User, error) {
-	query := `SELECT * FROM user_account WHERE username = $1`
+	query := `SELECT id, username, email, created_at FROM user_account WHERE username = $1`
 
 	user := data.User{}
 
@@ -36,7 +36,7 @@ func GetUserAccountByUsername(username string) (data.User, error) {
         &user.ID,
         &user.Username,
         &user.Email,
-        &user.Password,
+        // &user.Password,
         &user.CreatedAt,
     )
 	if err != nil {
