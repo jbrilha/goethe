@@ -1,19 +1,19 @@
 package blog
 
 import (
-    "fmt"
-
+	"fmt"
 	"goethe/data"
 	"goethe/util"
-	"goethe/views/layouts"
 	"goethe/views/components"
+	"goethe/views/layouts"
+	"strconv"
 )
 
 templ Index(posts []data.Post) {
 	@layouts.Base() {
-        <div class="absolute -right-1 -translate-x-5 translate-y-2">
-            @components.CreatePostButton()
-        </div>
+		<div class="absolute -right-1 -translate-x-5 translate-y-2">
+			@components.CreatePostButton()
+		</div>
 		<div id="blog-page" class="py-5 flex justify-center">
 			<ul>
 				for _, post := range posts {
@@ -37,22 +37,31 @@ templ PostPreview(p data.Post) {
 				class="mb-1 text-3xl font-bold line-clamp-2 hover:underline"
 				href=""
 				hx-get={ util.PathParams("/posts", p.ID) }
-                hx-target="#base"
+				hx-target="#base"
 				hx-push-url="true"
 			>
 				{ p.Title }
 			</a>
 			<p class="text-xs">
-				{ p.Creator } | { p.CreatedAt.Format("01-02-2006 @ 15:04") }
+				<a
+					class="font-bold hover:underline"
+					hx-get={ util.PathParams("/profile", p.Creator) }
+					hx-target="#base"
+					hx-push-url="true"
+					href=""
+				>
+					{ p.Creator }
+				</a>
+				| { p.CreatedAt.Format("01-02-2006") }
 			</p>
 		</div>
-		<div class="text-xl line-clamp-8">
+		<div id="content" class="text-xl line-clamp-6">
 			{ p.Content }
 		</div>
 		<!-- fade out: https://gist.github.com/drikusroor/aa48937c59b3d6123ca43ae9c660661d
             need "relative" up in the article otherwise it's applied to the entire page -->
 		<div
-			class="after:rounded-lg after:absolute after:inset-x-0 after:bottom-0 after:h-16
+			class="hidden after:rounded-lg after:absolute after:inset-x-0 after:bottom-0 after:h-16
             after:bg-gradient-to-b after:from-transparent after:to-gray-200"
 		></div>
 	</article>
@@ -61,6 +70,11 @@ templ PostPreview(p data.Post) {
 templ Post(p data.Post) {
 	@layouts.Base() {
 		<div class="py-5 flex justify-center">
+			<div id="info" class="flex flex-col">
+				<div id="info-card" class="mx-4">
+					@PostInfoCard(p)
+				</div>
+			</div>
 			<article
 				id="blog-post"
 				class="container max-w-screen-md px-4 py-2 relative
@@ -70,9 +84,6 @@ templ Post(p data.Post) {
 					<h1 class="mb-1 text-3xl font-bold">
 						{ p.Title }
 					</h1>
-					<p class="text-xs">
-						{ p.Creator } | { p.CreatedAt.Format("01-02-2006 @ 15:04") }
-					</p>
 				</div>
 				<div class="text-xl">
 					{ p.Content }
@@ -82,10 +93,40 @@ templ Post(p data.Post) {
 	}
 }
 
+templ PostInfoCard(p data.Post) {
+	<div
+		class="container max-w-screen-md px-4 py-2
+        rounded-lg bg-gray-200 border-b-2 border-l-2 border-gray-300 shadow-xl"
+	>
+		<div class="mb-2">
+			<a
+				class="mb-1 text-xl font-bold hover:underline"
+				hx-get={ util.PathParams("/profile", p.Creator) }
+				hx-target="#base"
+				hx-push-url="true"
+				href=""
+			>
+				{ p.Creator }
+			</a>
+			<p class="text-xs">
+				{ p.CreatedAt.Format("01-02-2006 @ 15:04") }
+			</p>
+			<p class="text-xs">
+				Viewed { strconv.Itoa(p.Views) }
+				if p.Views == 1 {
+					time
+				} else {
+					times
+				}
+			</p>
+		</div>
+	</div>
+}
+
 templ CreatePost() {
 	@layouts.Base() {
 		<div class="py-5 flex justify-center">
-            @components.PostForm()
+			@components.PostForm()
 		</div>
 	}
 }
