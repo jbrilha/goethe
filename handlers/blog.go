@@ -22,29 +22,33 @@ func BlogBase(c echo.Context) error {
 }
 
 func BlogPost(c echo.Context) error {
-	p := c.Param("id")
+	param := c.Param("id")
 
-	if idStr := strings.TrimSuffix(p, ".json"); idStr != p {
+	if idStr := strings.TrimSuffix(param, ".json"); idStr != param {
 		return BlogPostJSON(c, idStr)
 	}
 
-	id, err := strconv.Atoi(p)
+	id, err := strconv.Atoi(param)
 	if err != nil {
 		log.Println("Invalid param")
 	}
 
-	post, err := db.GetBlogPost(id)
+	p, err := db.GetBlogPost(id)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())
 	}
 
-	err = db.IncrPostViews(id)
-	if err != nil {
-		log.Println(err)
-	}
+	go func(id int) {
+		err = db.IncrPostViews(id)
 
-	return Render(c, blog.Post(post))
+		if err != nil {
+			log.Println("err in incrPostViews goroutine", err)
+		}
+	}(id)
+
+    p.Views += 1 // just to reflect current visit on page
+	return Render(c, blog.Post(p))
 }
 
 func BlogPostJSON(c echo.Context, idStr string) error {
@@ -58,12 +62,12 @@ func BlogPostJSON(c echo.Context, idStr string) error {
 		)
 	}
 
-	post, err := db.GetBlogPost(id)
+	p, err := db.GetBlogPost(id)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Blog post not found"})
 	}
 
-	return c.JSON(http.StatusOK, post)
+	return c.JSON(http.StatusOK, p)
 
 }
 
@@ -90,13 +94,13 @@ func CreateBlogPostSubmission(c echo.Context) error {
 
 	p := data.Post{Creator: creator, Title: title, Content: content}
 
-    _, err = db.InsertBlogPost(&p)
+	_, err = db.InsertBlogPost(&p)
 	if err != nil {
 		log.Println("err in insertion:", err)
 	}
 	log.Println(p.ID)
 
-
+    p.Views += 1
 	c.Response().Header().Add("HX-Push-Url", fmt.Sprintf("/posts/%v", p.ID))
 	return Render(c, blog.Post(p))
 }
