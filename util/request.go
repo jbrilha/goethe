@@ -26,9 +26,20 @@ func QueryParams(kv ...interface{}) string {
 }
 
 // Helper func to set url path params
-func PathParams(path string, param interface{}) string {
+func PathParams(path string, params ...interface{}) string {
 	if path[len(path)-1] != '/' {
-		return fmt.Sprintf("%v/%v", path, param)
+		path = path + "/"
 	}
-	return fmt.Sprintf("%v%v", path, param)
+
+	var pp strings.Builder
+    pp.WriteString(path)
+	for i := 0; i < len(params); i ++ {
+		if i > 0 {
+			pp.WriteString("/")
+		}
+
+		pp.WriteString(fmt.Sprintf("%v", params[i]))
+	}
+
+	return pp.String()
 }
