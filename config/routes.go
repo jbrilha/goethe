@@ -39,6 +39,7 @@ func SetRoutes(e *echo.Echo) {
 
     e.GET("/profile/:username", handlers.ProfileBase)
 
+    e.GET("/alert", handlers.Alert)
 
 	e.GET("/notif", handlers.Notif)
 }
