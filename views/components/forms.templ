@@ -14,6 +14,8 @@ type AccountFormValues struct {
 
 templ SignInForm() {
 	<div
+		hx-boost="true"
+		hx-push-url="false"
 		id="sign-in-form"
 		class="absolute -right-1 -translate-x-5 -translate-y-px bg-white z-50"
 		_="on click from elsewhere remove me"
@@ -24,7 +26,13 @@ templ SignInForm() {
 
 templ LoginForm(ff FormFill) {
 	@SignInForm() {
-		<form hx-post="/login" hx-swap="outerHTML" hx-target="#sign-in-form" class="border border-black shadow-2xl p-4">
+		<form
+			action="/login"
+			method="post"
+			hx-swap="outerHTML"
+			hx-target="#sign-in-form"
+			class="border border-black shadow-2xl p-4"
+		>
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
@@ -68,14 +76,13 @@ templ LoginForm(ff FormFill) {
 				>
 					Login
 				</button>
-				<button
-					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
-					hx-get="/register"
-					hx-target="#sign-in-form"
-					hx-swap="outerHTML"
-				>
-					Register
-				</button>
+				<a hx-target="#sign-in-form" hx-swap="outerHTML" href="/register">
+					<button
+						class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
+					>
+						Register
+					</button>
+				</a>
 			</div>
 		</form>
 	}
@@ -83,7 +90,13 @@ templ LoginForm(ff FormFill) {
 
 templ RegisterForm(ff FormFill) {
 	@SignInForm() {
-		<form hx-post="/register" hx-swap="outerHTML" hx-target="#sign-in-form" class="border border-black shadow-2xl p-4">
+		<form
+			action="/register"
+			method="post"
+			hx-swap="outerHTML"
+			hx-target="#sign-in-form"
+			class="border border-black shadow-2xl p-4"
+		>
 			<div class="mb-2">
 				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
 					Username
@@ -136,22 +149,27 @@ templ RegisterForm(ff FormFill) {
 				</div>
 			</div>
 			<div class="mb-2 flex items-center">
-				<input id="remember-me" name="remember-me" type="checkbox" value="remember" if ff.RememberMe {
-	checked
-}/>
+				<input
+					id="remember-me"
+					name="remember-me"
+					type="checkbox"
+					value="remember"
+					if ff.RememberMe {
+						checked
+					}
+				/>
 				<label class="text-gray-700 text-sm font-bold px-2" for="remember-me">
 					Remember me
 				</label>
 			</div>
 			<div id="register-form-buttons" class="flex items-center justify-between">
-				<button
-					class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
-					hx-get="/login"
-					hx-swap="outerHTML"
-					hx-target="#sign-in-form"
-				>
-					Login
-				</button>
+				<a hx-target="#sign-in-form" hx-swap="outerHTML" href="/login">
+					<button
+						class="border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2"
+					>
+						Login
+					</button>
+				</a>
 				<button
 					class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-1 px-2"
 				>
@@ -164,7 +182,12 @@ templ RegisterForm(ff FormFill) {
 
 templ BookForm() {
 	<div class="max-w-xs px-5">
-		<form id="book-form" hx-swap="beforeend" hx-target="#main" class="bg-yellow-200 shadow-2xl rounded p-6 mb-4">
+		<form
+			id="book-form"
+			hx-swap="beforeend"
+			hx-target="#main"
+			class="bg-yellow-200 shadow-2xl rounded p-6 mb-4"
+		>
 			<p class="text-xl font-bold mb-2">
 				Add/remove a book
 			</p>
