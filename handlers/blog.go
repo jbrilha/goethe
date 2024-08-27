@@ -21,12 +21,29 @@ func BlogBase(c echo.Context) error {
 	return Render(c, blog.Index(db.GetBlogPosts()))
 }
 
+func PostsByTag(c echo.Context) error {
+	tag := c.Param("tag")
+
+	// if idStr := strings.TrimSuffix(param, ".json"); idStr != param {
+	// 	return BlogPostJSON(c, idStr)
+	// }
+
+	p, err := db.GetBlogPostsByTag(tag)
+	if err != nil {
+		log.Println(err)
+		return Render(c, routes.Route404())
+	}
+
+	return Render(c, blog.Index(p))
+}
+
 func CreatorCard(c echo.Context) error {
     username := c.Param("creator")
 
 	u, err := db.GetUserAccountByUsername(username)
 	if err != nil {
 		log.Println(err)
+        return Render(c, routes.Route404())
 	}
     log.Println(u)
 
@@ -87,9 +104,16 @@ func CreateBlogPostForm(c echo.Context) error {
 	return Render(c, blog.CreatePost())
 }
 
+func AddTag(c echo.Context) error {
+    tag := c.FormValue("new-tag")
+
+	return Render(c, blog.Tag(tag))
+}
+
 func CreateBlogPostSubmission(c echo.Context) error {
 	title := c.FormValue("title")
 	content := c.FormValue("content")
+    tags := c.FormValue("tags")
 
 	jwtCookie, err := util.ReadCookie(c, "JWT")
 	if err != nil {
@@ -104,7 +128,8 @@ func CreateBlogPostSubmission(c echo.Context) error {
 		return c.JSON(http.StatusTeapot, data.Post{})
 	}
 
-	p := data.Post{Creator: creator, Title: title, Content: content}
+    tagSlice := strings.Split(tags, ",")
+    p := data.Post{Creator: creator, Title: title, Tags: tagSlice, Content: content}
 
 	_, err = db.InsertBlogPost(&p)
 	if err != nil {

@@ -95,7 +95,7 @@ templ Post(p data.Post) {
 
 templ PostInfoCard(p data.Post) {
 	<div
-		class="container max-w-screen-md px-4 py-2
+		class="container max-w-xs px-4 py-2
         rounded-lg bg-gray-200 border-b-2 border-l-2 border-gray-300 shadow-xl"
 	>
 		<div class="mb-2">
@@ -119,6 +119,19 @@ templ PostInfoCard(p data.Post) {
 					times
 				}
 			</p>
+			<div id="tags" class="flex justify-items-start flex-wrap max-w-48">
+				for _, tag := range p.Tags {
+					<button
+						id="tag"
+						class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1"
+						hx-get={ util.PathParams("/posts/tags", tag) }
+                        hx-push-url="true"
+						hx-target="#base"
+					>
+						{ tag }
+					</button>
+				}
+			</div>
 		</div>
 	</div>
 }
@@ -142,7 +155,103 @@ templ CreatorCard(u data.User) {
 templ CreatePost() {
 	@layouts.Base() {
 		<div class="py-5 flex justify-center">
-			@components.PostForm()
+			<div class="container max-w-screen-md px-5">
+				<form hx-post="/posts/create" id="post-form" hx-target="#base" class="bg-gray-200 shadow-2xl rounded p-6 mb-4">
+					<div class="mb-4">
+						<input
+							required
+							autofocus
+							class="text-xl font-bold border border-black rounded w-full p-2 text-gray-700 leading-tight"
+							id="title"
+							name="title"
+							type="text"
+							placeholder="Title"
+						/>
+					</div>
+					<div class="mb-4">
+						<input
+							id="tag-input"
+							name="new-tag"
+							type="text"
+							class="border border-black rounded w-full p-2 text-gray-700"
+							placeholder="Add a new tag"
+							hx-put="/posts/create/add-tag"
+							hx-trigger="keyup[key=='Enter']"
+							hx-target="#tags"
+							hx-swap="beforeend"
+							onkeydown="if (event.key === 'Enter') { event.preventDefault(); }"
+							_="on htmx:afterRequest
+                                call addTag(my value)
+                                add .mb-4 to #tags
+                                then set my value to ''"
+						/>
+					</div>
+					<div id="tags" class="flex justify-items-start flex-wrap"></div>
+					<input hidden type="text" name="tags" id="input-tags" value=""/>
+					<div class="mb-4">
+						<textarea
+							required
+							rows="10"
+							class="border border-black rounded w-full p-2 text-gray-700 leading-tight"
+							id="content"
+							name="content"
+							type="text"
+							placeholder="What are you writing about?"
+						></textarea>
+					</div>
+					<div class="flex items-end">
+						<button
+							class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-2 px-4"
+						>
+							Post
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
+		<script>
+    function addTag(tag) {
+        var inputTags = document.getElementById('input-tags');
+
+        var currentTags = inputTags.value.trim();
+
+        if (currentTags) {
+            inputTags.value = currentTags + ',' + tag;
+        } else {
+            inputTags.value = tag;
+        }
+    }
+    function removeTag(tag2remove) {
+        var inputTags = document.getElementById('input-tags');
+
+        var tagsArray = inputTags.value.split(',').map(tag => tag.trim());
+
+        var filteredTags = tagsArray.filter(tag => tag !== tag2remove);
+
+        inputTags.value = filteredTags.join(',');
+
+        var tags = document.getElementById('tags');
+        console.log(tags.children.length)
+        if (tags.children.length == 1) {
+            tags.classList.remove('mb-4');
+        }
+    }
+</script>
 	}
+}
+
+templ Tag(tag string) {
+	<div id="tag" class="flex items-stretch rounded-full bg-yellow-200 px-1 m-1">
+		<p id="tag-name" class="px-2">
+			{ tag }
+		</p>
+		<button
+			id="remove-tag"
+			class="h-full flex-grow-0 px-2 border-l border-black hover:font-bold"
+			type="button"
+			_="on click call removeTag(me.previousElementSibling.innerText) then remove the closest #tag"
+		>
+			&times;
+		</button>
+	</div>
 }

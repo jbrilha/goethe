@@ -6,6 +6,7 @@ type Post struct {
 	ID        int       `json:"id"`
 	Creator   string    `json:"creator"`
 	Title     string    `json:"title"`
+	Tags      []string  `json:"tags"`
 	Content   string    `json:"content"`
 	Views     int       `json:"views"`
 	CreatedAt time.Time `json:"created_at"`
