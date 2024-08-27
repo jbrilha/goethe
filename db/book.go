@@ -21,12 +21,12 @@ func InsertBook(b *data.Book) (int, error) {
         b.ISBN10,
 		b.ISBN13,
 		b.Title,
-		pq.Array(&b.Authors),
-		pq.Array(&b.Publishers),
-		&b.PublishDate,
-		&b.Pages,
-		&b.Description,
-		pq.Array(&b.Languages),
+		pq.Array(b.Authors),
+		pq.Array(b.Publishers),
+		b.PublishDate,
+		b.Pages,
+		b.Description,
+		pq.Array(b.Languages),
 	).Scan(&pk)
 
 	if err != nil {
