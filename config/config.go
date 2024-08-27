@@ -48,13 +48,13 @@ func ApplyEchoConfig(e *echo.Echo) {
 			resConLen = fmt.Sprintf("%s%vB%s", ansi.Blue, resConLen, ansi.None)
 
 			if v.Error == nil {
-				log := "%v: %v %v [%v] — ꜛ%v ꜜ%v in %v\n"
+				log := "%v: %v %v [%v] — ꜜ%v ꜛ%v in %v\n"
 
 				status := fmt.Sprintf("%s%v%s", ansi.BoldGreen, v.Status, ansi.None)
 
 				fmt.Printf(log, dT, method, url, status, reqConLen, resConLen, lat)
 			} else {
-				log := "%v: %v %v [%v] — ꜛ%v ꜜ%v in %v\nError message: %v\n"
+				log := "%v: %v %v [%v] — ꜜ%v ꜛ%v in %v\nError message: %v\n"
 
 				status := fmt.Sprintf("%s%v%s", ansi.BoldRed, v.Status, ansi.None)
 				error := strings.Split(v.Error.Error(), "message=")[1]
