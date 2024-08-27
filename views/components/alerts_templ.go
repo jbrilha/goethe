@@ -43,7 +43,7 @@ func Alert(alertMsg string, timed bool) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(alertMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/alerts.templ`, Line: 18, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/alerts.templ`, Line: 21, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -56,5 +56,3 @@ func Alert(alertMsg string, timed bool) templ.Component {
 		return templ_7745c5c3_Err
 	})
 }
-
-//_="on load wait 5s then transition opacity to 0 then remove me"

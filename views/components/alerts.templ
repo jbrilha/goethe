@@ -5,8 +5,11 @@ templ Alert(alertMsg string, timed bool) {
 		id="alert"
 		class="m-1 bg-gray-200 shadow-2xl border-2 border-black p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"
 		if timed {
-			_="on load wait 5s then add .fade-hidden to me then wait 0.4s 
-        then remove me"
+			_="on load
+                wait 5s
+                add .fade-hidden to me
+                wait 0.4s 
+                remove me"
 		}
 	>
 		<p
@@ -22,12 +25,11 @@ templ Alert(alertMsg string, timed bool) {
 			class="h-full flex-grow-0 px-2 border-l border-black hover:font-bold"
 			type="button"
 			_="on click 
-        add .fade-hidden to my.parentElement then wait 0.4s 
-        then remove my.parentElement"
+                add .fade-hidden to my.parentElement
+                wait 0.4s 
+                remove my.parentElement"
 		>
 			&times;
 		</button>
 	</div>
 }
-
-//_="on load wait 5s then transition opacity to 0 then remove me"
