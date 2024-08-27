@@ -27,6 +27,30 @@ func InsertUserAccount(u *data.User) (int, error) {
 	return pk, nil
 }
 
+func GetUserAccountAuth(username string) (data.User, error) {
+	query := `SELECT id, username, password FROM user_account WHERE username = $1`
+
+	user := data.User{}
+
+    err := db.QueryRow(query, username).Scan(
+        &user.ID,
+        &user.Username,
+        // &user.Email,
+        &user.Password,
+        // &user.CreatedAt,
+    )
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println(err)
+			return data.User{}, err
+		}
+		log.Println("other err:", err)
+		return data.User{}, err
+	}
+
+	return user, nil
+}
+
 func GetUserAccountByUsername(username string) (data.User, error) {
 	query := `SELECT id, username, email, created_at FROM user_account WHERE username = $1`
 

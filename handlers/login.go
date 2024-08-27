@@ -24,6 +24,7 @@ func LoginForm(c echo.Context) error {
 func Login(c echo.Context) error {
 	u, ff := validateLoginForm(c)
 	if len(ff.Errors) > 0 {
+        log.Println(ff.Errors)
 		return Render(c, components.LoginForm(ff))
 	}
 
@@ -56,7 +57,7 @@ func validateLoginForm(c echo.Context) (data.User, components.FormFill) {
 		Errors:     make(map[string]string),
 	}
 
-	u, err := db.GetUserAccountByUsername(ff.Values.Username)
+	u, err := db.GetUserAccountAuth(ff.Values.Username)
 	if err != nil || !auth.CheckPassword(u.Password, pw) {
 		ff.Errors["INVALID_LOGIN"] = "Incorrect username or password"
 	}
