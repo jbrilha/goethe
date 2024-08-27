@@ -32,7 +32,7 @@ func SetRoutes(e *echo.Echo) {
     e.GET("/posts/:id", handlers.BlogPost)
 
     e.GET("/posts/create", handlers.CreateBlogPostForm)
-    e.PUT("/posts/create/add-tag", handlers.AddTag)
+    e.PUT("/posts/create", handlers.AddTag)
     e.POST("/posts/create", auth.WithJWT(handlers.CreateBlogPostSubmission, handlers.NeedLogin))
 
     e.GET("/posts/tags/:tag", handlers.PostsByTag)

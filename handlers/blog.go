@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -38,16 +40,16 @@ func PostsByTag(c echo.Context) error {
 }
 
 func CreatorCard(c echo.Context) error {
-    username := c.Param("creator")
+	username := c.Param("creator")
 
 	u, err := db.GetUserAccountByUsername(username)
 	if err != nil {
 		log.Println(err)
-        return Render(c, routes.Route404())
+		return Render(c, routes.Route404())
 	}
-    log.Println(u)
+	log.Println(u)
 
-    return Render(c, blog.CreatorCard(u))
+	return Render(c, blog.CreatorCard(u))
 }
 
 func BlogPost(c echo.Context) error {
@@ -76,7 +78,7 @@ func BlogPost(c echo.Context) error {
 		}
 	}(id)
 
-    p.Views += 1 // just to reflect current visit on page
+	p.Views += 1 // just to reflect current visit on page
 	return Render(c, blog.Post(p))
 }
 
@@ -104,8 +106,23 @@ func CreateBlogPostForm(c echo.Context) error {
 	return Render(c, blog.CreatePost())
 }
 
+func validateTag(tag string) error {
+	alphaNum := `^[a-zA-Z0-9_]+$`
+	re := regexp.MustCompile(alphaNum)
+
+	if !re.MatchString(tag) {
+		return errors.New("Only alphanumeric characters and underscores in tags!")
+	}
+
+	return nil
+}
+
 func AddTag(c echo.Context) error {
-    tag := c.FormValue("new-tag")
+	tag := c.QueryParam("tag")
+
+	if err := validateTag(tag); err != nil {
+		return alert(c, err.Error(), true)
+	}
 
 	return Render(c, blog.Tag(tag))
 }
@@ -113,7 +130,7 @@ func AddTag(c echo.Context) error {
 func CreateBlogPostSubmission(c echo.Context) error {
 	title := c.FormValue("title")
 	content := c.FormValue("content")
-    tags := c.FormValue("tags")
+	tags := c.FormValue("tags")
 
 	jwtCookie, err := util.ReadCookie(c, "JWT")
 	if err != nil {
@@ -128,8 +145,8 @@ func CreateBlogPostSubmission(c echo.Context) error {
 		return c.JSON(http.StatusTeapot, data.Post{})
 	}
 
-    tagSlice := strings.Split(tags, ",")
-    p := data.Post{Creator: creator, Title: title, Tags: tagSlice, Content: content}
+	tagSlice := strings.Split(tags, ",")
+	p := data.Post{Creator: creator, Title: title, Tags: tagSlice, Content: content}
 
 	_, err = db.InsertBlogPost(&p)
 	if err != nil {
@@ -137,7 +154,7 @@ func CreateBlogPostSubmission(c echo.Context) error {
 	}
 	log.Println(p.ID)
 
-    p.Views += 1
+	p.Views += 1
 	c.Response().Header().Add("HX-Push-Url", fmt.Sprintf("/posts/%v", p.ID))
 	return Render(c, blog.Post(p))
 }

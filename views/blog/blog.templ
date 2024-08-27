@@ -32,23 +32,20 @@ templ PostPreview(p data.Post) {
 		class="container max-w-screen-md max-h-96 px-4 py-2 relative
         rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-md"
 	>
-		<div class="mb-2">
+		<div class="mb-2" hx-boost="true">
 			<a
 				class="mb-1 text-3xl font-bold line-clamp-2 hover:underline"
-				href=""
-				hx-get={ util.PathParams("/posts", p.ID) }
 				hx-target="#base"
-				hx-push-url="true"
+				href={ templ.URL(util.PathParams("/posts", p.ID)) }
 			>
 				{ p.Title }
 			</a>
 			<p class="text-xs">
 				<a
 					class="font-bold hover:underline"
-					hx-get={ util.PathParams("/profile", p.Creator) }
 					hx-target="#base"
-					hx-push-url="true"
-					href=""
+					href={ templ.URL(util.PathParams("/profile",
+                p.Creator)) }
 				>
 					{ p.Creator }
 				</a>
@@ -98,13 +95,12 @@ templ PostInfoCard(p data.Post) {
 		class="container max-w-xs px-4 py-2
         rounded-lg bg-gray-200 border-b-2 border-l-2 border-gray-300 shadow-xl"
 	>
-		<div class="mb-2">
+		<div class="mb-2" hx-boost="true">
 			<a
 				class="mb-1 text-xl font-bold hover:underline"
-				hx-get={ util.PathParams("/profile", p.Creator) }
 				hx-target="#base"
-				hx-push-url="true"
-				href=""
+				href={ templ.URL(util.PathParams("/profile",
+            p.Creator)) }
 			>
 				{ p.Creator }
 			</a>
@@ -121,15 +117,11 @@ templ PostInfoCard(p data.Post) {
 			</p>
 			<div id="tags" class="flex justify-items-start flex-wrap max-w-48">
 				for _, tag := range p.Tags {
-					<button
-						id="tag"
-						class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1"
-						hx-get={ util.PathParams("/posts/tags", tag) }
-                        hx-push-url="true"
-						hx-target="#base"
-					>
-						{ tag }
-					</button>
+					<a hx-target="#base" href={ templ.URL(util.PathParams("/posts/tags", tag)) }>
+						<button id="tag" class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1">
+							{ tag }
+						</button>
+					</a>
 				}
 			</div>
 		</div>
@@ -155,8 +147,15 @@ templ CreatorCard(u data.User) {
 templ CreatePost() {
 	@layouts.Base() {
 		<div class="py-5 flex justify-center">
-			<div class="container max-w-screen-md px-5">
-				<form hx-post="/posts/create" id="post-form" hx-target="#base" class="bg-gray-200 shadow-2xl rounded p-6 mb-4">
+			<div hx-boost="true" class="container max-w-screen-md px-5">
+				<form
+					id="post-form"
+					action="/posts/create"
+					method="post"
+					hx-target="#base"
+					hx-push-url="false"
+					class="bg-gray-200 shadow-2xl rounded p-6 mb-4"
+				>
 					<div class="mb-4">
 						<input
 							required
@@ -168,22 +167,20 @@ templ CreatePost() {
 							placeholder="Title"
 						/>
 					</div>
-					<div class="mb-4">
+					<div class="mb-4 flex items-center">
+						<span class="text-xl mr-2">#</span>
 						<input
 							id="tag-input"
 							name="new-tag"
 							type="text"
 							class="border border-black rounded w-full p-2 text-gray-700"
-							placeholder="Add a new tag"
-							hx-put="/posts/create/add-tag"
-							hx-trigger="keyup[key=='Enter']"
-							hx-target="#tags"
-							hx-swap="beforeend"
-							onkeydown="if (event.key === 'Enter') { event.preventDefault(); }"
-							_="on htmx:afterRequest
-                                call addTag(my value)
-                                add .mb-4 to #tags
-                                then set my value to ''"
+							placeholder="Add a tag"
+							_="on keydown
+                                if event.key is 'Enter'
+                                    event.preventDefault()
+                                    call addTag(my value)
+                                    set my value to ''
+                                end"
 						/>
 					</div>
 					<div id="tags" class="flex justify-items-start flex-wrap"></div>
@@ -209,47 +206,25 @@ templ CreatePost() {
 				</form>
 			</div>
 		</div>
-		<script>
-    function addTag(tag) {
-        var inputTags = document.getElementById('input-tags');
-
-        var currentTags = inputTags.value.trim();
-
-        if (currentTags) {
-            inputTags.value = currentTags + ',' + tag;
-        } else {
-            inputTags.value = tag;
-        }
-    }
-    function removeTag(tag2remove) {
-        var inputTags = document.getElementById('input-tags');
-
-        var tagsArray = inputTags.value.split(',').map(tag => tag.trim());
-
-        var filteredTags = tagsArray.filter(tag => tag !== tag2remove);
-
-        inputTags.value = filteredTags.join(',');
-
-        var tags = document.getElementById('tags');
-        console.log(tags.children.length)
-        if (tags.children.length == 1) {
-            tags.classList.remove('mb-4');
-        }
-    }
-</script>
+		<script src="/public/scripts/tags.js" defer></script>
 	}
 }
 
 templ Tag(tag string) {
 	<div id="tag" class="flex items-stretch rounded-full bg-yellow-200 px-1 m-1">
-		<p id="tag-name" class="px-2">
-			{ tag }
-		</p>
+		<div class="px-2 flex items-center">
+			<span>#</span>
+			<p id="tag-name">
+				{ tag }
+			</p>
+		</div>
 		<button
 			id="remove-tag"
 			class="h-full flex-grow-0 px-2 border-l border-black hover:font-bold"
 			type="button"
-			_="on click call removeTag(me.previousElementSibling.innerText) then remove the closest #tag"
+			_="on click
+                call removeTag((previous <p#tag-name/>).innerText)
+                then remove the closest #tag"
 		>
 			&times;
 		</button>
