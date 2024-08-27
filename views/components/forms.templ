@@ -209,39 +209,3 @@ templ BookForm() {
 		</form>
 	</div>
 }
-
-templ PostForm() {
-	<div class="container max-w-screen-md px-5">
-		<form id="post-form" hx-target="#base" class="bg-gray-200 shadow-2xl rounded p-6 mb-4">
-			<div class="mb-4">
-				<input
-					required
-					autofocus
-					class="text-xl font-bold border border-black rounded w-full p-2 text-gray-700 leading-tight"
-					id="title"
-					name="title"
-					type="text"
-					placeholder="Title"
-				/>
-			</div>
-			<div class="mb-4">
-				<textarea
-					required
-					class="border border-black rounded w-full p-2 text-gray-700 leading-tight"
-					id="content"
-					name="content"
-					type="text"
-					placeholder="What are you writing about?"
-				></textarea>
-			</div>
-			<div class="flex items-end">
-				<button
-					class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-2 px-4"
-					hx-post="/posts/create"
-				>
-					Post
-				</button>
-			</div>
-		</form>
-	</div>
-}
