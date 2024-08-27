@@ -28,7 +28,7 @@ func NavigationBar() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav id=\"navbar\" class=\"row-auto py-3 font-baskerville\"><div class=\"flex justify-between items-center px-4 relative\"><div class=\"font-bold italic text-3xl\"><a href=\"/\">Goethe</a></div><div class=\"text-2xl absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 space-x-8\"><a hx-get=\"/bookshelf\" hx-target=\"#base\" hx-push-url=\"true\" href=\"\">Bookshelf</a> <a hx-get=\"/posts\" hx-target=\"#base\" hx-push-url=\"true\" href=\"\">Blog</a> <a hx-get=\"/notif\" hx-target=\"#notifications\" hx-swap=\"beforeend\" href=\"\">Notif</a></div>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -43,7 +43,7 @@ func NavigationBar() templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></nav>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
