@@ -43,7 +43,7 @@ func Alert(alertMsg string, timed bool) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(alertMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/alerts.templ`, Line: 21, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/alerts.templ`, Line: 19, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -56,3 +56,9 @@ func Alert(alertMsg string, timed bool) templ.Component {
 		return templ_7745c5c3_Err
 	})
 }
+
+// p _="on load if my.textContent.length > 34 then add .border-b to the next <button/>"
+
+// button class="h-full flex-grow-0 px-2 border-l border-black hover:font-bold hover:bg-black hover:text-white"
+
+// div class="m-1 bg-gray-300 shadow-2xl border-2 border-black p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"
