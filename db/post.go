@@ -58,9 +58,9 @@ func GetBlogPostsByTag(tag string) ([]data.Post, error) {
 	rows, err := db.Query(query, tag)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Fatalf("nooooooooo roooooooooooows")
+			log.Println("nooooooooo roooooooooooows")
 		}
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	defer rows.Close()
@@ -70,7 +70,7 @@ func GetBlogPostsByTag(tag string) ([]data.Post, error) {
 	for rows.Next() {
 		err := rows.Scan(&id, &creator, &title, &tags, &content, &views, &createdAt)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		posts = append(posts, data.Post{
@@ -128,9 +128,9 @@ func GetBlogPosts() []data.Post {
 	rows, err := db.Query(query)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Fatalf("nooooooooo roooooooooooows")
+			log.Println("nooooooooo roooooooooooows")
 		}
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	defer rows.Close()
@@ -140,7 +140,7 @@ func GetBlogPosts() []data.Post {
 	for rows.Next() {
 		err := rows.Scan(&id, &creator, &title, &tags, &content, &views, &createdAt)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		posts = append(posts, data.Post{

@@ -90,9 +90,9 @@ func GetBooks() []data.Book {
 	rows, err := db.Query(query)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Fatalf("nooooooooo roooooooooooows")
+			log.Println("nooooooooo roooooooooooows")
 		}
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	defer rows.Close()
@@ -113,7 +113,7 @@ func GetBooks() []data.Book {
 			pq.Array(&languages),
 		)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		books = append(books, data.Book{

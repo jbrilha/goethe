@@ -112,9 +112,9 @@ func GetUserAccounts() []data.User {
 	rows, err := db.Query(query)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Fatalf("nooooooooo roooooooooooows")
+			log.Println("nooooooooo roooooooooooows")
 		}
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	defer rows.Close()
@@ -124,7 +124,7 @@ func GetUserAccounts() []data.User {
 	for rows.Next() {
         err := rows.Scan(&id, &username, &password, &email, &createdAt)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		posts = append(posts, data.User{

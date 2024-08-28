@@ -64,7 +64,7 @@ func checkTz() {
 
 	err := db.QueryRow(query).Scan(&tz)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	log.Println(tz)
