@@ -173,17 +173,16 @@ templ CreatePost() {
 							id="tag-input"
 							name="new-tag"
 							type="text"
-							class="border border-black rounded w-full p-2 text-gray-700"
+							class="border border-black rounded w-full p-2 text-gray-700 max-w-40"
 							placeholder="Add a tag"
 							_="on keydown
                                 if event.key is 'Enter'
                                     event.preventDefault()
                                     call addTag(my value)
-                                    set my value to ''
                                 end"
 						/>
+						<div id="tags" class="flex justify-items-start flex-wrap"></div>
 					</div>
-					<div id="tags" class="flex justify-items-start flex-wrap"></div>
 					<input hidden type="text" name="tags" id="input-tags" value=""/>
 					<div class="mb-4">
 						<textarea
