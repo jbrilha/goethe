@@ -9,6 +9,7 @@ module.exports = {
                 academyEngraved: ['AcademyEngraved', 'sans-serif'],
                 baskerville: ['Baskerville', 'sans-serif'],
                 timesNewRoman: ['TimesNewRoman', 'sans-serif'],
+                w95: ['W95FA', 'sans-serif'],
             },
         },
     },
