@@ -3,7 +3,7 @@ package components
 templ Alert(alertMsg string, timed bool) {
 	<div
 		id="alert"
-		class="m-1 bg-gray-200 shadow-2xl border-2 border-black p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"
+        class="m-1 bg-gray-300 w95-border border-3 p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"
 		if timed {
 			_="on load
                 wait 5s
@@ -15,21 +15,25 @@ templ Alert(alertMsg string, timed bool) {
 		<p
 			id="alert-msg"
 			class="pr-2 font-bold"
-			_="on load
-            if my.textContent.length > 34 then add .border-b to the next <button/>"
 		>
 			{ alertMsg }
 		</p>
-		<button
-			id="close-button"
-			class="h-full flex-grow-0 px-2 border-l border-black hover:font-bold"
-			type="button"
-			_="on click 
-                add .fade-hidden to my.parentElement
-                wait 0.4s 
-                remove my.parentElement"
-		>
-			&times;
-		</button>
+            <button
+                id="close-button"
+                class="h-full flex-grow-0 px-2 w95-button border-2 font-bold"
+                type="button"
+                _="on click 
+                    add .fade-hidden to my.parentElement
+                    wait 0.4s 
+                    remove my.parentElement"
+            >
+                &times;
+            </button>
 	</div>
 }
+
+// p _="on load if my.textContent.length > 34 then add .border-b to the next <button/>"
+
+// button class="h-full flex-grow-0 px-2 border-l border-black hover:font-bold hover:bg-black hover:text-white"
+
+// div class="m-1 bg-gray-300 shadow-2xl border-2 border-black p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"

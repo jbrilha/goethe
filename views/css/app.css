@@ -22,6 +22,11 @@
   src: url("fonts/TimesNewRoman.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "W95FA";
+  src: url("fonts/W95FA.otf") format("opentype");
+}
+
 .line-clamp-8 {
   overflow: hidden;
   display: -webkit-box;
@@ -43,4 +48,29 @@
 
 .fade-hidden {
   opacity: 0;
+}
+
+.border-3 {
+  border-width: 3px;
+}
+
+.w95-border {
+  border-top-color: rgb(229 231 235);
+  border-left-color: rgb(229 231 235);
+  border-right-color: rgb(0 0 0);
+  border-bottom-color: rgb(0 0 0);
+}
+
+.w95-button {
+  border-top-color: rgb(229 231 235);
+  border-left-color: rgb(229 231 235);
+  border-right-color: rgb(0 0 0);
+  border-bottom-color: rgb(0 0 0);
+}
+
+.w95-button:hover:active {
+  border-top-color: rgb(0 0 0);
+  border-left-color: rgb(0 0 0);
+  border-right-color: rgb(229 231 235);
+  border-bottom-color: rgb(229 231 235);
 }
