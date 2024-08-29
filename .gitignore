@@ -2,7 +2,9 @@
 .DS_Store
 *_templ.txt
 
+# environment
 .env
+.env.docker
 
 # dirs
 tmp/
