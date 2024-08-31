@@ -35,7 +35,7 @@ func SetRoutes(e *echo.Echo) {
     e.PUT("/posts/create", handlers.AddTag)
     e.POST("/posts/create", auth.WithJWT(handlers.CreateBlogPostSubmission, handlers.NeedLogin))
 
-    e.GET("/posts/tags/:tag", handlers.PostsByTag)
+    e.GET("/posts/search", handlers.PostSearch)
 
     e.GET("/profile/:username", handlers.ProfileBase)
 

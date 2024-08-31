@@ -9,19 +9,40 @@ import (
 	"strconv"
 )
 
+templ SearchBar() {
+	<div id="search-bar" class="flex justify-center m-2">
+		<form action="/posts/search" method="get" hx-swap="outerHTML" hx-target="#posts" class="max-w-screen-sm w-full">
+			<input
+				class="border border-black p-2 text-gray-700 leading-tight rounded-full w-full focus:outline-black"
+				id="query"
+				name="q"
+				type="search"
+				placeholder="Search"
+			/>
+		</form>
+	</div>
+}
+
+templ Posts(posts []data.Post) {
+	<div id="posts" class="flex justify-center">
+		<ul>
+			for _, post := range posts {
+				<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
+					@PostPreview(post)
+				</li>
+			}
+		</ul>
+	</div>
+}
+
 templ Index(posts []data.Post) {
 	@layouts.Base() {
 		<div class="absolute -right-1 -translate-x-5 translate-y-2">
 			@components.CreatePostButton()
 		</div>
-		<div id="blog-page" class="py-5 flex justify-center">
-			<ul>
-				for _, post := range posts {
-					<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
-						@PostPreview(post)
-					</li>
-				}
-			</ul>
+		<div id="blog-page" hx-boost="true">
+			@SearchBar()
+			@Posts(posts)
 		</div>
 	}
 }
@@ -32,7 +53,7 @@ templ PostPreview(p data.Post) {
 		class="container max-w-screen-md max-h-96 px-4 py-2 relative
         rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-md"
 	>
-		<div class="mb-2" hx-boost="true">
+		<div class="mb-2">
 			<a
 				class="mb-1 text-3xl font-bold line-clamp-2 hover:underline"
 				hx-target="#base"
@@ -66,24 +87,22 @@ templ PostPreview(p data.Post) {
 
 templ Post(p data.Post) {
 	@layouts.Base() {
-		<div class="py-5 flex justify-center">
-			<div id="info" class="flex flex-col">
-				<div id="info-card" class="mx-4">
-					@PostInfoCard(p)
-				</div>
-			</div>
+		<div class="py-5 flex justify-center relative">
 			<article
 				id="blog-post"
-				class="container max-w-screen-md px-4 py-2 relative
-        rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-2xl"
+				class="max-w-screen-md px-4 py-2 relative
+				rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-2xl"
 			>
 				<div class="mb-2">
-					<h1 class="mb-1 text-3xl font-bold">
+					<h1 class="text-3xl font-bold">
 						{ p.Title }
 					</h1>
 				</div>
 				<div class="text-xl">
 					{ p.Content }
+				</div>
+				<div class="absolute -left-64 -top-0 mx-4">
+					@PostInfoCard(p)
 				</div>
 			</article>
 		</div>
@@ -92,38 +111,38 @@ templ Post(p data.Post) {
 
 templ PostInfoCard(p data.Post) {
 	<div
-		class="container max-w-xs px-4 py-2
+		id="info-card"
+		hx-boost="true"
+		class="container px-4 py-2 space-y-1 inline-block 
         rounded-lg bg-gray-200 border-b-2 border-l-2 border-gray-300 shadow-xl"
 	>
-		<div class="mb-2" hx-boost="true">
-			<a
-				class="mb-1 text-xl font-bold hover:underline"
-				hx-target="#base"
-				href={ templ.URL(util.PathParams("/profile",
-            p.Creator)) }
-			>
-				{ p.Creator }
-			</a>
-			<p class="text-xs">
-				{ p.CreatedAt.Format("01-02-2006 @ 15:04") }
-			</p>
-			<p class="text-xs">
-				Viewed { strconv.Itoa(p.Views) }
-				if p.Views == 1 {
-					time
-				} else {
-					times
-				}
-			</p>
-			<div id="tags" class="flex justify-items-start flex-wrap max-w-48">
-				for _, tag := range p.Tags {
-					<a hx-target="#base" href={ templ.URL(util.PathParams("/posts/tags", tag)) }>
-						<button id="tag" class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1">
-							{ tag }
-						</button>
-					</a>
-				}
-			</div>
+		<a
+			class="mb-1 text-xl font-bold hover:underline"
+			hx-target="#base"
+			href={ templ.URL(util.PathParams("/profile",
+        p.Creator)) }
+		>
+			{ p.Creator }
+		</a>
+		<p class="text-xs">
+			{ p.CreatedAt.Format("01-02-2006 @ 15:04") }
+		</p>
+		<p class="text-xs">
+			Viewed { strconv.Itoa(p.Views) }
+			if p.Views == 1 {
+				time
+			} else {
+				times
+			}
+		</p>
+		<div id="tags" class="flex justify-items-start flex-wrap max-w-48 bg-gray-400 rounded p-1">
+			for _, tag := range p.Tags {
+				<a hx-target="#base" hx-vals={ util.QueryParams("t", tag) } href={ templ.URL("/posts/search") }>
+					<button id="tag" class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1">
+						{ tag }
+					</button>
+				</a>
+			}
 		</div>
 	</div>
 }

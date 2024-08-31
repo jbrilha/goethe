@@ -15,24 +15,30 @@ type Post struct {
 func GetPosts() []Post {
 	return []Post{
 		{
-			ID:        1,
 			Creator:   "root",
-			Title:     "What is Lorem IpsumWhat is Lorem IpsumWhat is Lorem IpsumWhat is Lorem Ipsum",
+			Title:     "What is Lorem Ipsum",
 			Content:   ipsum1,
+			Tags:      []string{"lorem", "ipsum1", "odd"},
 			CreatedAt: time.Now(),
 		},
 		{
-			ID:        2,
 			Creator:   "root",
 			Title:     "Where does it come from",
 			Content:   ipsum2,
+			Tags:      []string{"lorem", "ipsum2", "even"},
 			CreatedAt: time.Now(),
 		},
-		{ID: 3, Creator: "root", Title: "Why do we use it", Content: ipsum3, CreatedAt: time.Now()},
 		{
-			ID:        4,
+			ID:        3,
+			Creator:   "root",
+			Title:     "Why do we use it",
+			Content:   ipsum3,
+			Tags:      []string{"lorem", "ipsum3", "odd"},
+			CreatedAt: time.Now()},
+		{
 			Creator:   "root",
 			Title:     "Where can I get some",
+			Tags:      []string{"lorem", "ipsum4", "even"},
 			Content:   ipsum4,
 			CreatedAt: time.Now(),
 		},
