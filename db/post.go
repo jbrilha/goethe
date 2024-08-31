@@ -15,16 +15,13 @@ func InsertBlogPost(p *data.Post) (int, error) {
                 VALUES($1, $2, $3, $4, $5)
                 RETURNING id`
 
-	var pk int
-
-	err := db.QueryRow(query, p.Creator, p.Title, pq.Array(p.Tags), p.Content, time.Now()).Scan(&pk)
+	err := db.QueryRow(query, p.Creator, p.Title, pq.Array(p.Tags), p.Content, time.Now()).Scan(&p.ID)
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	p.ID = pk
-	return pk, nil
+	return p.ID, nil
 }
 
 func IncrPostViews(id int) error {
@@ -42,49 +39,6 @@ func IncrPostViews(id int) error {
 	}
 
 	return nil
-}
-
-func GetBlogPostsByTag(tag string) ([]data.Post, error) {
-	query := `SELECT * FROM post WHERE $1 = ANY(tags) ORDER BY created_at DESC`
-
-	var id int
-	var creator string
-	var title string
-	var tags pq.StringArray
-	var content string
-	var views int
-	var createdAt time.Time
-
-	rows, err := db.Query(query, tag)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Println("nooooooooo roooooooooooows")
-		}
-		log.Println(err)
-	}
-
-	defer rows.Close()
-
-	posts := []data.Post{}
-
-	for rows.Next() {
-		err := rows.Scan(&id, &creator, &title, &tags, &content, &views, &createdAt)
-		if err != nil {
-			log.Println(err)
-		}
-
-		posts = append(posts, data.Post{
-			ID:        id,
-			Creator:   creator,
-			Title:     title,
-			Tags:      tags,
-			Content:   content,
-			Views:     views,
-			CreatedAt: createdAt,
-		})
-	}
-
-	return posts, nil
 }
 
 func GetBlogPost(id int) (data.Post, error) {
@@ -114,18 +68,35 @@ func GetBlogPost(id int) (data.Post, error) {
 	return post, nil
 }
 
-func GetBlogPosts() []data.Post {
+func SearchPosts(search string) ([]data.Post, error) {
+	query := `SELECT * FROM post WHERE
+            (content ILIKE '%' || $1 || '%' OR title ILIKE '%' || $1 || '%') 
+            ORDER BY created_at DESC`
+
+	return getPosts(query, search)
+}
+
+func SearchPostsByCreator(creator string) ([]data.Post, error) {
+	query := `SELECT * FROM post WHERE creator ILIKE '%' || $1 || '%' ORDER BY created_at DESC`
+
+	log.Println(creator)
+	return getPosts(query, creator)
+}
+
+func SearchPostsByTag(tag string) ([]data.Post, error) {
+	query := `SELECT * FROM post WHERE $1 = ANY(tags) ORDER BY created_at DESC`
+
+	return getPosts(query, tag)
+}
+
+func GetBlogPosts() ([]data.Post, error) {
 	query := `SELECT * FROM post ORDER BY created_at DESC`
 
-	var id int
-	var creator string
-	var title string
-	var tags pq.StringArray
-	var content string
-	var views int
-	var createdAt time.Time
+	return getPosts(query)
+}
 
-	rows, err := db.Query(query)
+func getPosts(query string, args ...any) ([]data.Post, error) {
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("nooooooooo roooooooooooows")
@@ -138,23 +109,24 @@ func GetBlogPosts() []data.Post {
 	posts := []data.Post{}
 
 	for rows.Next() {
-		err := rows.Scan(&id, &creator, &title, &tags, &content, &views, &createdAt)
+		var post data.Post
+		err := rows.Scan(
+			&post.ID,
+			&post.Creator,
+			&post.Title,
+			pq.Array(&post.Tags),
+			&post.Content,
+			&post.Views,
+			&post.CreatedAt,
+		)
 		if err != nil {
 			log.Println(err)
 		}
 
-		posts = append(posts, data.Post{
-			ID:        id,
-			Creator:   creator,
-			Title:     title,
-			Tags:      tags,
-			Content:   content,
-			Views:     views,
-			CreatedAt: createdAt,
-		})
+		posts = append(posts, post)
 	}
 
-	return posts
+	return posts, nil
 }
 
 func createPostTable() {

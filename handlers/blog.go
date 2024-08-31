@@ -20,23 +20,52 @@ import (
 )
 
 func BlogBase(c echo.Context) error {
-	return Render(c, blog.Index(db.GetBlogPosts()))
+	posts, err := db.GetBlogPosts()
+	if err != nil {
+		log.Println(err)
+		return Render(c, routes.Route404())
+	}
+	return Render(c, blog.Index(posts))
 }
 
-func PostsByTag(c echo.Context) error {
-	tag := c.Param("tag")
+func PostSearch(c echo.Context) error {
+	tag := c.QueryParam("t")
 
-	// if idStr := strings.TrimSuffix(param, ".json"); idStr != param {
-	// 	return BlogPostJSON(c, idStr)
-	// }
+	if tag != "" {
+		// if idStr := strings.TrimSuffix(param, ".json"); idStr != param {
+		// 	return BlogPostJSON(c, idStr)
+		// }
 
-	p, err := db.GetBlogPostsByTag(tag)
+		p, err := db.SearchPostsByTag(tag)
+		if err != nil {
+			log.Println(err)
+			return Render(c, routes.Route404())
+		}
+
+		return Render(c, blog.Index(p))
+	}
+
+	query := c.QueryParam("q")
+	if strings.Contains(query, "from:") {
+		creator := strings.Split(query, ":")[1]
+		log.Println(creator)
+
+		p, err := db.SearchPostsByCreator(creator)
+		if err != nil {
+			log.Println(err)
+			return Render(c, routes.Route404())
+		}
+
+		return Render(c, blog.Posts(p))
+	}
+
+	p, err := db.SearchPosts(query)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())
 	}
 
-	return Render(c, blog.Index(p))
+	return Render(c, blog.Posts(p))
 }
 
 func CreatorCard(c echo.Context) error {
@@ -95,7 +124,8 @@ func BlogPostJSON(c echo.Context, idStr string) error {
 
 	p, err := db.GetBlogPost(id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Blog post not found"})
+		c.JSON(http.StatusNotFound, map[string]string{"error": "Blog post not found"})
+		return echo.ErrNotFound
 	}
 
 	return c.JSON(http.StatusOK, p)
