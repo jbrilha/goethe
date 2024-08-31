@@ -10,13 +10,19 @@ import (
 )
 
 func InsertBook(b *data.Book) (int, error) {
+	tx, err := db.Begin()
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	defer tx.Rollback()
+
 	query := `INSERT INTO book(isbn10, isbn13, title, authors, publishers, publish_date, pages, description, languages)
                 VALUES(NULLIF($1, ''), $2, $3, $4, $5, $6, $7, $8, $9)
                 RETURNING id`
 
-	var pk int
-
-	err := db.QueryRow(
+	err = db.QueryRow(
 		query,
         b.ISBN10,
 		b.ISBN13,
@@ -27,15 +33,19 @@ func InsertBook(b *data.Book) (int, error) {
 		b.Pages,
 		b.Description,
 		pq.Array(b.Languages),
-	).Scan(&pk)
+	).Scan(&b.ID)
 
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	b.ID = pk
-	return pk, nil
+	if err = tx.Commit(); err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	return b.ID, nil
 }
 
 func GetBookByISBN(isbn string) (data.Book, error) {

@@ -11,12 +11,34 @@ import (
 )
 
 func InsertBlogPost(p *data.Post) (int, error) {
+	tx, err := db.Begin()
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	defer tx.Rollback()
+
 	query := `INSERT INTO post(creator, title, tags, content, created_at)
                 VALUES($1, $2, $3, $4, $5)
                 RETURNING id`
 
-	err := db.QueryRow(query, p.Creator, p.Title, pq.Array(p.Tags), p.Content, time.Now()).Scan(&p.ID)
+	err = tx.QueryRow(
+		query,
+		p.Creator,
+		p.Title,
+		pq.Array(p.Tags),
+		p.Content,
+		time.Now(),
+	).Scan(
+		&p.ID,
+	)
 	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	if err = tx.Commit(); err != nil {
 		log.Println(err)
 		return 0, err
 	}
@@ -25,9 +47,17 @@ func InsertBlogPost(p *data.Post) (int, error) {
 }
 
 func IncrPostViews(id int) error {
+	tx, err := db.Begin()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	defer tx.Rollback()
+
 	query := `UPDATE post SET views = views + 1 WHERE id = $1`
 
-	_, err := db.Exec(query, id)
+	_, err = tx.Exec(query, id)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -35,6 +65,11 @@ func IncrPostViews(id int) error {
 			return err
 		}
 		log.Println("wtf", id)
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Println(err)
 		return err
 	}
 

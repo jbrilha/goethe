@@ -11,20 +11,30 @@ import (
 )
 
 func InsertUserAccount(u *data.User) (int, error) {
-	query := `INSERT INTO user_account(username, email, password, created_at)
-                VALUES($1, $2, $3, $4)
-                RETURNING id`
-
-	var pk int
-
-	err := db.QueryRow(query, u.Username, u.Email, u.Password, u.CreatedAt).Scan(&pk)
+	tx, err := db.Begin()
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	u.ID = pk
-	return pk, nil
+	defer tx.Rollback()
+
+	query := `INSERT INTO user_account(username, email, password, created_at)
+                VALUES($1, $2, $3, $4)
+                RETURNING id`
+
+	err = db.QueryRow(query, u.Username, u.Email, u.Password, u.CreatedAt).Scan(&u.ID)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	return u.ID, nil
 }
 
 func GetUserAccountAuth(username string) (data.User, error) {
@@ -32,13 +42,13 @@ func GetUserAccountAuth(username string) (data.User, error) {
 
 	user := data.User{}
 
-    err := db.QueryRow(query, username).Scan(
-        &user.ID,
-        &user.Username,
-        // &user.Email,
-        &user.Password,
-        // &user.CreatedAt,
-    )
+	err := db.QueryRow(query, username).Scan(
+		&user.ID,
+		&user.Username,
+		// &user.Email,
+		&user.Password,
+		// &user.CreatedAt,
+	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println(err)
@@ -56,13 +66,13 @@ func GetUserAccountByUsername(username string) (data.User, error) {
 
 	user := data.User{}
 
-    err := db.QueryRow(query, username).Scan(
-        &user.ID,
-        &user.Username,
-        &user.Email,
-        // &user.Password,
-        &user.CreatedAt,
-    )
+	err := db.QueryRow(query, username).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		// &user.Password,
+		&user.CreatedAt,
+	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println(err)
@@ -80,13 +90,13 @@ func GetUserAccountByID(id int) (data.User, error) {
 
 	user := data.User{}
 
-    err := db.QueryRow(query, id).Scan(
-        &user.ID,
-        &user.Username,
-        &user.Email,
-        &user.Password,
-        &user.CreatedAt,
-    )
+	err := db.QueryRow(query, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+	)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -122,7 +132,7 @@ func GetUserAccounts() []data.User {
 	posts := []data.User{}
 
 	for rows.Next() {
-        err := rows.Scan(&id, &username, &password, &email, &createdAt)
+		err := rows.Scan(&id, &username, &password, &email, &createdAt)
 		if err != nil {
 			log.Println(err)
 		}
