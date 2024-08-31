@@ -6,7 +6,7 @@ import (
 )
 
 // Helper func to use with hx-vals
-func QueryParams(kv ...interface{}) string {
+func QueryParams(kv ...any) string {
 	if len(kv)%2 != 0 {
 		fmt.Printf("invalid args, must be even to form key:value")
 	}
@@ -26,7 +26,7 @@ func QueryParams(kv ...interface{}) string {
 }
 
 // Helper func to set url path params
-func PathParams(path string, params ...interface{}) string {
+func PathParams(path string, params ...any) string {
 	if path[len(path)-1] != '/' {
 		path = path + "/"
 	}

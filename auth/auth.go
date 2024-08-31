@@ -105,7 +105,7 @@ func WriteJWTCookie(c echo.Context, jwt string) error {
 func ValidateJWT(tokenString string) (*jwt.Token, error) {
 	secret := env.JWTSecret()
 
-	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	return jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
