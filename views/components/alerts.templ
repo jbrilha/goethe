@@ -3,7 +3,7 @@ package components
 templ Alert(alertMsg string, timed bool) {
 	<div
 		id="alert"
-        class="m-1 bg-gray-300 w95-border border-3 p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"
+        class="m-1 bg-white border-black border-2 p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"
 		if timed {
 			_="on load
                 wait 5s
@@ -20,7 +20,7 @@ templ Alert(alertMsg string, timed bool) {
 		</p>
             <button
                 id="close-button"
-                class="h-full flex-grow-0 px-2 w95-button border-2 font-bold"
+                class="h-full flex-grow-0 px-2 btn-black"
                 type="button"
                 _="on click 
                     add .fade-hidden to my.parentElement

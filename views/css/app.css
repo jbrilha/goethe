@@ -74,3 +74,24 @@
   border-right-color: rgb(229 231 235);
   border-bottom-color: rgb(229 231 235);
 }
+
+.btn-black {
+  border-width: 1px;
+  border-color: #000000;
+  background-color: #000000;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.btn-black:hover {
+  border-color: #000000;
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: 700;
+}
+
+.post-info {
+  background-color: #000000;
+  color: #ffffff;
+  font-weight: 700;
+}
