@@ -29,12 +29,24 @@ func BlogBase(c echo.Context) error {
 }
 
 func PostSearch(c echo.Context) error {
+	tag := strings.TrimSpace(c.QueryParam("t"))
+	if tag != "" {
+		p, err := db.SearchPostsByTag(tag)
+
+		if err != nil {
+			log.Println(err)
+			return Render(c, routes.Route404())
+		}
+
+		return Render(c, blog.Index(p))
+	}
+
 	query := strings.TrimSpace(c.QueryParam("q"))
 	if query == "" {
 		return echo.ErrBadRequest
 	}
-	creator, fTerms, eTerms := parseQuery(query)
-	p, err := db.SearchPosts(creator, fTerms, eTerms)
+	sp := parseQuery(query)
+	p, err := db.SearchPosts(sp.creator, sp.fuzzyTerms, sp.exactTerms, sp.tags)
 
 	if err != nil {
 		log.Println(err)
@@ -43,20 +55,28 @@ func PostSearch(c echo.Context) error {
 
 	if c.Request().Header.Get("HX-Request") == "" {
 		// if it's not an htmx request it means it was a direct link access,
-        // therefore I need to send @layouts.Base along with the results or else
-        // it's just the results in plain html (no tailwind etc)
+		// therefore I need to send @layouts.Base along with the results or else
+		// it's just the results in plain html (no tailwind etc)
 		return Render(c, blog.Index(p))
 	}
 
 	return Render(c, blog.Posts(p))
 }
 
-func parseQuery(query string) (string, []string, []string) {
-	re := regexp.MustCompile(`"(.*?)"|from:(\S+)`)
+type searchParams struct {
+	creator    string
+	tags       []string
+	fuzzyTerms []string
+	exactTerms []string
+}
+
+func parseQuery(query string) searchParams {
+	re := regexp.MustCompile(`"(.*?)"|from:(\S+)|#(\w+)`)
 
 	var creator string
 	var exactTerms []string
 	var fuzzyTerms []string
+	var tags []string
 
 	matches := re.FindAllStringSubmatch(query, -1)
 	for _, match := range matches {
@@ -64,6 +84,8 @@ func parseQuery(query string) (string, []string, []string) {
 			creator = match[2]
 		} else if match[1] != "" { // captured string between quotes for exact matching
 			exactTerms = append(exactTerms, match[1])
+		} else if match[3] != "" { // captured tags
+			tags = append(tags, match[3])
 		}
 	}
 
@@ -76,7 +98,12 @@ func parseQuery(query string) (string, []string, []string) {
 		fuzzyTerms = strings.Fields(query)
 	}
 
-	return creator, fuzzyTerms, exactTerms
+	return searchParams{
+		creator:    creator,
+		tags:       tags,
+		fuzzyTerms: fuzzyTerms,
+		exactTerms: exactTerms,
+	}
 }
 func CreatorCard(c echo.Context) error {
 	username := c.Param("creator")
@@ -185,7 +212,7 @@ func CreateBlogPostSubmission(c echo.Context) error {
 		return c.JSON(http.StatusTeapot, data.Post{})
 	}
 
-	tagSlice := strings.Split(tags, ",")
+	tagSlice := strings.Fields(tags)
 	p := data.Post{Creator: creator, Title: title, Tags: tagSlice, Content: content}
 
 	_, err = db.InsertBlogPost(&p)
