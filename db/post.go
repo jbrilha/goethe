@@ -32,7 +32,7 @@ func InsertBlogPost(p *data.Post) (int, error) {
                 VALUES($1, $2, $3, $4, $5)
                 RETURNING id`
 
-    log.Println("ptags", len(p.Tags))
+	log.Println("ptags", len(p.Tags))
 	err = tx.QueryRow(
 		query,
 		p.Creator,
@@ -117,32 +117,35 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 	var query strings.Builder
 	args := []any{}
 	offset := 1
+	fCount := len(sp.FuzzyTerms)
+	eCount := len(sp.ExactTerms)
+	tCount := len(sp.Tags)
 
-	if creator == "" {
 	if sp.Creator == "" {
 		query.WriteString(`SELECT * FROM post WHERE (`)
 	} else {
-		query.WriteString(`SELECT * FROM post WHERE creator = $1 AND (`)
+		query.WriteString(`SELECT * FROM post WHERE creator = $1`)
 		offset = 2
+
+		if tCount > 0 || fCount > 0 || eCount > 0 {
+			query.WriteString(` AND (`)
+		}
+
 		args = []any{sp.Creator}
 	}
 	q := []string{}
 
-	currIdx := offset
-	fCount := len(fuzzyTerms)
-	eCount := len(exactTerms)
-	tCount := len(tags)
 	if fCount > 0 {
 		query.WriteString(`(`)
 		log.Println("fuzzy")
 		for _, term := range sp.FuzzyTerms { // TODO already looping through terms in the handler, figure out optimization
 			q = append(
 				q,
-				`(content ILIKE '%' || $` + fmt.Sprint(i + offset) +
-					` || '%' OR title ILIKE '%' || $` + fmt.Sprint( i + offset) + ` || '%')`)
+				`(content ILIKE '%' || $`+fmt.Sprint(offset)+
+					` || '%' OR title ILIKE '%' || $`+fmt.Sprint(offset)+` || '%')`)
 			args = append(args, term)
 
-			currIdx = i + offset + 1
+            offset += 1
 		}
 		query.WriteString(strings.Join(q, ` OR `))
 		query.WriteString(`)`)
@@ -158,11 +161,11 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 		for _, term := range sp.ExactTerms {
 			q = append(
 				q,
-				`(content ~* ('\y' || $` + fmt.Sprint(i + currIdx) +
-					` || '\y') OR title ~* ('\y' || $` + fmt.Sprint(i + currIdx) + ` || '\y'))`)
+				`(content ~* ('\y' || $`+fmt.Sprint(offset)+
+					` || '\y') OR title ~* ('\y' || $`+fmt.Sprint(offset)+` || '\y'))`)
 			args = append(args, term)
 
-			currIdx = i + offset + 1
+            offset += 1
 		}
 		query.WriteString(strings.Join(q, " OR "))
 
@@ -177,7 +180,7 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 			query.WriteString(" AND (")
 		}
 
-		query.WriteString("tags && $" + fmt.Sprint(currIdx))
+		query.WriteString("tags && $" + fmt.Sprint(offset))
 		args = append(args, pq.Array(sp.Tags))
 
 		if fCount > 0 || eCount > 0 {
@@ -185,7 +188,11 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 		}
 	}
 
-	query.WriteString(`) ORDER BY created_at DESC`)
+	if tCount > 0 || fCount > 0 || eCount > 0 {
+		query.WriteString(`)`)
+	}
+
+	query.WriteString(` ORDER BY created_at DESC`)
 
 	return getPosts(query.String(), args...)
 }
