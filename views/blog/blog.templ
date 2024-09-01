@@ -11,13 +11,7 @@ import (
 
 templ SearchBar() {
 	<search id="search-bar" class="flex justify-center m-2">
-		<form
-			class="max-w-screen-sm w-full"
-			action="/posts/search"
-			method="get"
-			hx-swap="outerHTML"
-			hx-target="#posts"
-		>
+		<form class="max-w-screen-sm w-full" action="/posts/search" method="get" hx-swap="outerHTML" hx-target="#posts">
 			<input
 				class="border border-black p-2 text-gray-700 leading-tight rounded-full w-full focus:outline-black"
 				id="query"
@@ -149,15 +143,21 @@ templ PostInfoCard(p data.Post) {
 				times
 			}
 		</p>
-		<div id="tags" class="flex justify-items-start flex-wrap max-w-48 bg-gray-400 rounded p-1">
-			for _, tag := range p.Tags {
-				<a hx-target="#base" hx-vals={ util.QueryParams("t", tag) } href={ templ.URL("/posts/search") }>
-					<button id="tag" class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1">
-						{ tag }
-					</button>
-				</a>
-			}
-		</div>
+		if len(p.Tags) > 0 {
+			<div id="tags" class="flex justify-items-start flex-wrap max-w-48 bg-gray-400 rounded p-1">
+				for _, tag := range p.Tags {
+					<a
+						hx-target="#base"
+						hx-vals={ util.QueryParams("t", tag) }
+						href={ templ.URL("/posts/search") }
+					>
+						<button id="tag" class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1">
+							#{ tag }
+						</button>
+					</a>
+				}
+			</div>
+		}
 	</div>
 }
 
