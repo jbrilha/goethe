@@ -46,7 +46,7 @@ func PostSearch(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 	sp := parseQuery(query)
-	p, err := db.SearchPosts(sp.creator, sp.fuzzyTerms, sp.exactTerms, sp.tags)
+	p, err := db.SearchPosts(sp)
 
 	if err != nil {
 		log.Println(err)
@@ -63,29 +63,24 @@ func PostSearch(c echo.Context) error {
 	return Render(c, blog.Posts(p))
 }
 
-type searchParams struct {
-	creator    string
-	tags       []string
-	fuzzyTerms []string
-	exactTerms []string
-}
-
-func parseQuery(query string) searchParams {
+func parseQuery(query string) db.PostSearchParams {
 	re := regexp.MustCompile(`"(.*?)"|from:(\S+)|#(\w+)`)
 
-	var creator string
-	var exactTerms []string
-	var fuzzyTerms []string
-	var tags []string
+    sp := db.PostSearchParams{}
+
+	// var creator string
+	// var exactTerms []string
+	// var fuzzyTerms []string
+	// var tags []string
 
 	matches := re.FindAllStringSubmatch(query, -1)
 	for _, match := range matches {
 		if match[2] != "" { // captured creator
-			creator = match[2]
+			sp.Creator = match[2]
 		} else if match[1] != "" { // captured string between quotes for exact matching
-			exactTerms = append(exactTerms, match[1])
+			sp.ExactTerms = append(sp.ExactTerms, match[1])
 		} else if match[3] != "" { // captured tags
-			tags = append(tags, match[3])
+			sp.Tags = append(sp.Tags, match[3])
 		}
 	}
 
@@ -95,15 +90,10 @@ func parseQuery(query string) searchParams {
 
 	// query = strings.TrimSpace(query)
 	if query != "" {
-		fuzzyTerms = strings.Fields(query)
+		sp.FuzzyTerms = strings.Fields(query)
 	}
 
-	return searchParams{
-		creator:    creator,
-		tags:       tags,
-		fuzzyTerms: fuzzyTerms,
-		exactTerms: exactTerms,
-	}
+    return sp
 }
 func CreatorCard(c echo.Context) error {
 	username := c.Param("creator")

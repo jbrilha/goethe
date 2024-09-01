@@ -12,6 +12,13 @@ import (
 	"github.com/lib/pq"
 )
 
+type PostSearchParams struct {
+	Creator    string
+	Tags       []string
+	FuzzyTerms []string
+	ExactTerms []string
+}
+
 func InsertBlogPost(p *data.Post) (int, error) {
 	tx, err := db.Begin()
 	if err != nil {
@@ -106,17 +113,18 @@ func GetBlogPostByID(id int) (data.Post, error) {
 	return post, nil
 }
 
-func SearchPosts(creator string, fuzzyTerms, exactTerms, tags []string) ([]data.Post, error) {
+func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 	var query strings.Builder
 	args := []any{}
 	offset := 1
 
 	if creator == "" {
+	if sp.Creator == "" {
 		query.WriteString(`SELECT * FROM post WHERE (`)
 	} else {
 		query.WriteString(`SELECT * FROM post WHERE creator = $1 AND (`)
 		offset = 2
-		args = []any{creator}
+		args = []any{sp.Creator}
 	}
 	q := []string{}
 
@@ -127,7 +135,7 @@ func SearchPosts(creator string, fuzzyTerms, exactTerms, tags []string) ([]data.
 	if fCount > 0 {
 		query.WriteString(`(`)
 		log.Println("fuzzy")
-		for i, term := range fuzzyTerms { // TODO already looping through terms in the handler, figure out optimization
+		for _, term := range sp.FuzzyTerms { // TODO already looping through terms in the handler, figure out optimization
 			q = append(
 				q,
 				`(content ILIKE '%' || $` + fmt.Sprint(i + offset) +
@@ -147,7 +155,7 @@ func SearchPosts(creator string, fuzzyTerms, exactTerms, tags []string) ([]data.
 			query.WriteString(" AND (")
 		}
 
-		for i, term := range exactTerms {
+		for _, term := range sp.ExactTerms {
 			q = append(
 				q,
 				`(content ~* ('\y' || $` + fmt.Sprint(i + currIdx) +
@@ -170,7 +178,7 @@ func SearchPosts(creator string, fuzzyTerms, exactTerms, tags []string) ([]data.
 		}
 
 		query.WriteString("tags && $" + fmt.Sprint(currIdx))
-        args = append(args, pq.Array(tags))
+		args = append(args, pq.Array(sp.Tags))
 
 		if fCount > 0 || eCount > 0 {
 			query.WriteString(")")
