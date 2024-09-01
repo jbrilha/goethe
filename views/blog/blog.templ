@@ -10,17 +10,31 @@ import (
 )
 
 templ SearchBar() {
-	<div id="search-bar" class="flex justify-center m-2">
-		<form action="/posts/search" method="get" hx-swap="outerHTML" hx-target="#posts" class="max-w-screen-sm w-full">
+	<search id="search-bar" class="flex justify-center m-2">
+		<form
+			class="max-w-screen-sm w-full"
+			action="/posts/search"
+			method="get"
+			hx-swap="outerHTML"
+			hx-target="#posts"
+		>
 			<input
 				class="border border-black p-2 text-gray-700 leading-tight rounded-full w-full focus:outline-black"
 				id="query"
 				name="q"
 				type="search"
 				placeholder="Search"
+				_="on keydown
+                    if event.key is 'Enter'
+                        set my value to removeWhiteSpace(my value)
+                        if my value is empty
+                            event.preventDefault()
+                        end
+                    end"
 			/>
 		</form>
-	</div>
+	</search>
+	<script src="/public/scripts/util.js" defer></script>
 }
 
 templ Posts(posts []data.Post) {

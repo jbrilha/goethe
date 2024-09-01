@@ -2,7 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"goethe/data"
@@ -76,7 +78,7 @@ func IncrPostViews(id int) error {
 	return nil
 }
 
-func GetBlogPost(id int) (data.Post, error) {
+func GetBlogPostByID(id int) (data.Post, error) {
 	query := `SELECT * FROM post WHERE id = $1`
 
 	post := data.Post{}
@@ -103,18 +105,68 @@ func GetBlogPost(id int) (data.Post, error) {
 	return post, nil
 }
 
-func SearchPosts(search string) ([]data.Post, error) {
-	query := `SELECT * FROM post WHERE
-            (content ILIKE '%' || $1 || '%' OR title ILIKE '%' || $1 || '%') 
-            ORDER BY created_at DESC`
+func SearchPosts(creator string, fuzzyTerms, exactTerms []string) ([]data.Post, error) {
+	var query strings.Builder
+	args := []any{}
+	offset := 1
 
-	return getPosts(query, search)
+	if creator == "" {
+		query.WriteString(`SELECT * FROM post WHERE (`)
+	} else {
+		query.WriteString(`SELECT * FROM post WHERE creator = $1 AND (`)
+		offset = 2
+		args = []any{creator}
+	}
+	q := []string{}
+
+	currIdx := offset
+	fCount := len(fuzzyTerms)
+	eCount := len(exactTerms)
+	if fCount > 0 {
+		query.WriteString(`(`)
+		log.Println("fuzzy")
+		for i, term := range fuzzyTerms { // TODO already looping through terms in the handler, figure out optimization
+			q = append(
+				q,
+				`(content ILIKE '%' || $` + fmt.Sprint(i + offset) +
+					` || '%' OR title ILIKE '%' || $` + fmt.Sprint( i + offset) + ` || '%')`)
+			args = append(args, term)
+
+			currIdx = i + offset + 1
+		}
+		query.WriteString(strings.Join(q, ` OR `))
+		query.WriteString(`)`)
+	}
+
+	if eCount > 0 {
+		q = []string{}
+		log.Println("exact")
+		if fCount > 0 {
+			query.WriteString(" AND (")
+		}
+
+		for i, term := range exactTerms {
+			q = append(
+				q,
+				`(content ~* ('\y' || $` + fmt.Sprint(i + currIdx) +
+					` || '\y') OR title ~* ('\y' || $` + fmt.Sprint(i + currIdx) + ` || '\y'))`)
+			args = append(args, term)
+		}
+		query.WriteString(strings.Join(q, " OR "))
+
+		if fCount > 0 {
+			query.WriteString(")")
+		}
+	}
+
+	query.WriteString(`) ORDER BY created_at DESC`)
+
+	return getPosts(query.String(), args...)
 }
 
 func SearchPostsByCreator(creator string) ([]data.Post, error) {
 	query := `SELECT * FROM post WHERE creator ILIKE '%' || $1 || '%' ORDER BY created_at DESC`
 
-	log.Println(creator)
 	return getPosts(query, creator)
 }
 

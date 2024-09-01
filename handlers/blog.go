@@ -29,45 +29,55 @@ func BlogBase(c echo.Context) error {
 }
 
 func PostSearch(c echo.Context) error {
-	tag := c.QueryParam("t")
-
-	if tag != "" {
-		// if idStr := strings.TrimSuffix(param, ".json"); idStr != param {
-		// 	return BlogPostJSON(c, idStr)
-		// }
-
-		p, err := db.SearchPostsByTag(tag)
-		if err != nil {
-			log.Println(err)
-			return Render(c, routes.Route404())
-		}
-
-		return Render(c, blog.Index(p))
+	query := strings.TrimSpace(c.QueryParam("q"))
+	if query == "" {
+		return echo.ErrBadRequest
 	}
+	creator, fTerms, eTerms := parseQuery(query)
+	p, err := db.SearchPosts(creator, fTerms, eTerms)
 
-	query := c.QueryParam("q")
-	if strings.Contains(query, "from:") {
-		creator := strings.Split(query, ":")[1]
-		log.Println(creator)
-
-		p, err := db.SearchPostsByCreator(creator)
-		if err != nil {
-			log.Println(err)
-			return Render(c, routes.Route404())
-		}
-
-		return Render(c, blog.Posts(p))
-	}
-
-	p, err := db.SearchPosts(query)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())
 	}
 
+	if c.Request().Header.Get("HX-Request") == "" {
+		// if it's not an htmx request it means it was a direct link access,
+        // therefore I need to send @layouts.Base along with the results or else
+        // it's just the results in plain html (no tailwind etc)
+		return Render(c, blog.Index(p))
+	}
+
 	return Render(c, blog.Posts(p))
 }
 
+func parseQuery(query string) (string, []string, []string) {
+	re := regexp.MustCompile(`"(.*?)"|from:(\S+)`)
+
+	var creator string
+	var exactTerms []string
+	var fuzzyTerms []string
+
+	matches := re.FindAllStringSubmatch(query, -1)
+	for _, match := range matches {
+		if match[2] != "" { // captured creator
+			creator = match[2]
+		} else if match[1] != "" { // captured string between quotes for exact matching
+			exactTerms = append(exactTerms, match[1])
+		}
+	}
+
+	for _, match := range matches {
+		query = strings.ReplaceAll(query, match[0], "")
+	}
+
+	// query = strings.TrimSpace(query)
+	if query != "" {
+		fuzzyTerms = strings.Fields(query)
+	}
+
+	return creator, fuzzyTerms, exactTerms
+}
 func CreatorCard(c echo.Context) error {
 	username := c.Param("creator")
 
@@ -93,7 +103,7 @@ func BlogPost(c echo.Context) error {
 		log.Println("Invalid param")
 	}
 
-	p, err := db.GetBlogPost(id)
+	p, err := db.GetBlogPostByID(id)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())
@@ -122,7 +132,7 @@ func BlogPostJSON(c echo.Context, idStr string) error {
 		)
 	}
 
-	p, err := db.GetBlogPost(id)
+	p, err := db.GetBlogPostByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, map[string]string{"error": "Blog post not found"})
 		return echo.ErrNotFound
