@@ -17,6 +17,8 @@ type PostSearchParams struct {
 	Tags       []string
 	FuzzyTerms []string
 	ExactTerms []string
+	ID         int
+	Timestamp  time.Time
 }
 
 func InsertBlogPost(p *data.Post) (int, error) {
@@ -32,7 +34,6 @@ func InsertBlogPost(p *data.Post) (int, error) {
                 VALUES($1, $2, $3, $4, $5)
                 RETURNING id`
 
-	log.Println("ptags", len(p.Tags))
 	err = tx.QueryRow(
 		query,
 		p.Creator,
@@ -113,26 +114,38 @@ func GetBlogPostByID(id int) (data.Post, error) {
 	return post, nil
 }
 
+func GetBlogPosts(id int, timestamp time.Time) ([]data.Post, error) {
+	query := `SELECT * FROM post
+            WHERE (id > $1 AND created_at < $2) OR (created_at < $2)
+            ORDER BY (created_at, id) DESC
+            LIMIT 20`
+
+	return getPosts(query, id, timestamp)
+}
+
 func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 	var query strings.Builder
 	args := []any{}
-	offset := 1
+	offset := 3
 	fCount := len(sp.FuzzyTerms)
 	eCount := len(sp.ExactTerms)
 	tCount := len(sp.Tags)
 
 	if sp.Creator == "" {
-		query.WriteString(`SELECT * FROM post WHERE (`)
+		query.WriteString(`SELECT * FROM post
+            WHERE ((id > $1 AND created_at < $2) OR (created_at < $2))`)
 	} else {
-		query.WriteString(`SELECT * FROM post WHERE creator = $1`)
-		offset = 2
-
-		if tCount > 0 || fCount > 0 || eCount > 0 {
-			query.WriteString(` AND (`)
-		}
-
+		query.WriteString(`SELECT * FROM post
+            WHERE creator = $1 AND ((id > $2 AND created_at < $3) OR (created_at < $3))`)
+		offset = 4
 		args = []any{sp.Creator}
 	}
+	args = append(args, sp.ID, sp.Timestamp)
+
+	if tCount > 0 || fCount > 0 || eCount > 0 {
+		query.WriteString(` AND (`)
+	}
+
 	q := []string{}
 
 	if fCount > 0 {
@@ -145,7 +158,7 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 					` || '%' OR title ILIKE '%' || $`+fmt.Sprint(offset)+` || '%')`)
 			args = append(args, term)
 
-            offset += 1
+			offset += 1
 		}
 		query.WriteString(strings.Join(q, ` OR `))
 		query.WriteString(`)`)
@@ -165,7 +178,7 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 					` || '\y') OR title ~* ('\y' || $`+fmt.Sprint(offset)+` || '\y'))`)
 			args = append(args, term)
 
-            offset += 1
+			offset += 1
 		}
 		query.WriteString(strings.Join(q, " OR "))
 
@@ -207,15 +220,6 @@ func SearchPostsByTag(tag string) ([]data.Post, error) {
 	query := `SELECT * FROM post WHERE $1 = ANY(tags) ORDER BY created_at DESC`
 
 	return getPosts(query, tag)
-}
-
-func GetBlogPosts(id int, timestamp time.Time) ([]data.Post, error) {
-	query := `SELECT * FROM post
-            WHERE (id > $1 AND created_at < $2) OR (created_at < $2)
-            ORDER BY (created_at, id) DESC
-            LIMIT 20`
-
-	return getPosts(query, id, timestamp)
 }
 
 func getPosts(query string, args ...any) ([]data.Post, error) {

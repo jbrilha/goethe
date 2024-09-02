@@ -21,31 +21,26 @@ import (
 )
 
 func BlogBase(c echo.Context) error {
-	id, _ := strconv.Atoi(c.QueryParam("id"))
-    fmt.Printf("c.QueryParam(\"c\"): %v\n", c.QueryParam("c"))
-    timestamp, err := time.Parse("01-02-2006 15:04:05:00", c.QueryParam("ts"))
-	if err != nil {
-		log.Println("ts", err)
-	}
-
-	posts, err := db.GetBlogPosts(id, timestamp)
-	if err != nil {
-		log.Println(err)
-		return Render(c, routes.Route404())
-	}
-
-	if timestamp.IsZero() {
-		return Render(c, blog.Index(posts))
-	}
-	return Render(c, blog.Posts(posts))
+	return Render(c, blog.Index())
 }
 
 func PostSearch(c echo.Context) error {
+	id, err := strconv.Atoi(c.QueryParam("id"))
+	if err != nil {
+		log.Println("id err:", err)
+	}
+	timestamp, err := time.Parse("01-02-2006 15:04:05:00", c.QueryParam("ts"))
+	if err != nil {
+		log.Println("ts err:", err)
+	}
+
 	query := strings.TrimSpace(c.QueryParam("q"))
 
-	sp := parseQuery(query)
-	p, err := db.SearchPosts(sp)
+	sp := parseParams(query)
+	sp.ID = id
+	sp.Timestamp = timestamp
 
+	p, err := db.SearchPosts(sp)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())
@@ -55,21 +50,16 @@ func PostSearch(c echo.Context) error {
 		// if it's not an htmx request it means it was a direct link access,
 		// therefore I need to send @layouts.Base along with the results or else
 		// it's just the results in plain html (no tailwind etc)
-		return Render(c, blog.Index(p))
+		return Render(c, blog.Index())
 	}
 
 	return Render(c, blog.Posts(p))
 }
 
-func parseQuery(query string) db.PostSearchParams {
+func parseParams(query string) db.PostSearchParams {
 	re := regexp.MustCompile(`"(.*?)"|from:(\S+)|#(\w+)`)
 
 	sp := db.PostSearchParams{}
-
-	// var creator string
-	// var exactTerms []string
-	// var fuzzyTerms []string
-	// var tags []string
 
 	matches := re.FindAllStringSubmatch(query, -1)
 	for _, match := range matches {

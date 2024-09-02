@@ -38,7 +38,7 @@ func SignInForm() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div hx-boost=\"true\" hx-push-url=\"false\" id=\"sign-in-form\" class=\"absolute -right-1 -translate-x-5 -translate-y-px bg-white z-50\" _=\"on click from elsewhere remove me\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,7 +46,7 @@ func SignInForm() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -84,7 +84,7 @@ func LoginForm(ff FormFill) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form action=\"/login\" method=\"post\" hx-swap=\"outerHTML\" hx-target=\"#sign-in-form\" class=\"border border-black shadow-2xl p-4\"><div class=\"mb-2\"><label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"username\">Username</label> <input class=\"border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none\" id=\"username\" name=\"username\" type=\"text\" placeholder=\"Username\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -97,7 +97,7 @@ func LoginForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div><div class=\"mb-2\"><label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"password\">Password</label> <input class=\"border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none\" id=\"password\" name=\"password\" type=\"password\" placeholder=\"Password\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -110,17 +110,17 @@ func LoginForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 5)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div><div class=\"mb-2 flex items-center\"><input id=\"remember-me\" name=\"remember-me\" type=\"checkbox\" value=\"remember\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if ff.RememberMe {
-				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 6)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 7)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("> <label class=\"text-gray-700 text-sm font-bold px-2\" for=\"remember-me\">Remember me</label></div><div class=\"text-red-400 text-sm mb-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -133,7 +133,7 @@ func LoginForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 8)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div id=\"login-form-buttons\" class=\"flex items-center justify-between mt-2\"><button class=\"border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-1 px-2\">Login</button> <a hx-target=\"#sign-in-form\" hx-swap=\"outerHTML\" href=\"/register\"><button class=\"border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2\">Register</button></a></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -177,7 +177,7 @@ func RegisterForm(ff FormFill) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 9)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form action=\"/register\" method=\"post\" hx-swap=\"outerHTML\" hx-target=\"#sign-in-form\" class=\"border border-black shadow-2xl p-4\"><div class=\"mb-2\"><label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"username\">Username</label> <input required class=\"border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none\" id=\"username\" name=\"username\" type=\"text\" placeholder=\"Username\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -190,7 +190,7 @@ func RegisterForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 10)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"text-red-400 text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -203,7 +203,7 @@ func RegisterForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 11)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"mb-2\"><label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"password\">Password</label> <input required class=\"border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none\" id=\"password\" name=\"password\" type=\"password\" placeholder=\"Password\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -216,7 +216,7 @@ func RegisterForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 12)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"text-red-400 text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -229,7 +229,7 @@ func RegisterForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 13)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"mb-2\"><label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"confirmation\">Password Confirmation</label> <input required class=\"border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none\" id=\"confirmation\" name=\"confirmation\" type=\"password\" placeholder=\"Confirmation\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -242,7 +242,7 @@ func RegisterForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 14)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"text-red-400 text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -255,17 +255,17 @@ func RegisterForm(ff FormFill) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 15)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div><div class=\"mb-2 flex items-center\"><input id=\"remember-me\" name=\"remember-me\" type=\"checkbox\" value=\"remember\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if ff.RememberMe {
-				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 16)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 17)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("> <label class=\"text-gray-700 text-sm font-bold px-2\" for=\"remember-me\">Remember me</label></div><div id=\"register-form-buttons\" class=\"flex items-center justify-between\"><a hx-target=\"#sign-in-form\" hx-swap=\"outerHTML\" href=\"/login\"><button class=\"border border-gray-600 bg-gray-400 hover:text-gray-600 hover:bg-black text-black font-bold py-1 px-2\">Login</button></a> <button class=\"border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-1 px-2\">Register</button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -297,7 +297,7 @@ func BookForm() templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 18)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"max-w-xs px-5\"><form id=\"book-form\" hx-swap=\"beforeend\" hx-target=\"#main\" class=\"bg-yellow-200 shadow-2xl rounded p-6 mb-4\"><p class=\"text-xl font-bold mb-2\">Add/remove a book</p><div class=\"mb-4\"><label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"title\">Title</label> <input class=\"border border-black rounded w-full p-2 text-gray-700 leading-tight focus:outline-none\" id=\"title\" name=\"title\" type=\"text\" placeholder=\"Title\"></div><div class=\"mb-4\"><label class=\"block text-gray-700 text-sm font-bold mb-2\" for=\"author\">Author</label> <input class=\"border border-black rounded w-full p-2 text-gray-700 leading-tight focus:outline-none\" id=\"author\" name=\"author\" type=\"text\" placeholder=\"Author\"></div><div class=\"flex items-center justify-between\"><button class=\"border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-2 px-4\" hx-post=\"/bookshelf/add-book\">Add</button> <button class=\"border border-red-600 bg-red-400 hover:text-red-600 hover:bg-black text-black font-bold py-2 px-4\" hx-delete=\"/bookshelf/remove-book\">Remove</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

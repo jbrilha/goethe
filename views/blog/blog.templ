@@ -23,18 +23,20 @@ templ SearchBar() {
             end"
 	>
 		<form
-			class="max-w-screen-sm w-full shadow-xl"
+			class="max-w-screen-sm w-full"
 			action="/posts/search"
 			method="get"
-			hx-swap="outerHTML"
+            hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
+			hx-swap="outerHTML show:none"
 			hx-target="#posts"
+            hx-push-url="false"
 		>
 			<input
-				class="border border-black p-2 text-gray-700 leading-tight w-full focus:outline-black"
+				class="border border-black p-2 text-gray-700 leading-tight w-full focus:outline-black shadow-xl"
 				id="query"
 				name="q"
 				type="search"
-				placeholder="Search from:user | #tag | content..."
+				placeholder="Search from:user | #tag | content | &quot;exact match&quot;..."
 				_="on keydown
                     if event.key is 'Enter'
                         set my value to removeWhiteSpace(my value)
@@ -50,14 +52,11 @@ templ SearchBar() {
 
 templ Posts(posts []data.Post) {
 	<div id="posts" class="flex justify-center">
-        <div hx-get="/posts" hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
-            hx-trigger="load" hx-swap="none" hx-select-oob="#posts-list:beforeend"
-        ></div>
 		<ul id="posts-list">
 			for i, post := range posts {
 				<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
                     if i == len(posts) - 3 {
-                        <div hx-get="/posts"
+                        <div hx-get="/posts/search"
                             hx-vals={ util.QueryParams(
                                         "id", posts[len(posts) - 1].ID,
                                         "ts", posts[len(posts) - 1].CreatedAt.Format("01-02-2006 15:04:05:00"),
@@ -72,17 +71,19 @@ templ Posts(posts []data.Post) {
 	</div>
 }
 
-templ Index(posts []data.Post) {
-	@layouts.Base() {
-		<div class="absolute -right-1 -translate-x-5 translate-y-2">
-			@components.CreatePostButton()
-		</div>
-		<div id="blog-page" hx-boost="true">
-			@SearchBar()
-			@Posts(posts)
-			@ScrollUp()
-		</div>
-	}
+templ Index() {
+    @layouts.Base() {
+        <div id="blog-page" hx-boost="true">
+            <div class="absolute -right-1 -translate-x-5 translate-y-2">
+                @components.CreatePostButton()
+            </div>
+            @SearchBar()
+            <div hx-get="/posts/search" hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
+                hx-trigger="load" hx-swap="none" hx-select-oob="#posts-list:beforeend"></div>
+            @Posts([]data.Post{})
+            @ScrollUp()
+        </div>
+    }
 }
 
 templ ScrollUp() {
@@ -111,7 +112,7 @@ templ PostPreview(p data.Post) {
 				hx-target="#posts"
 				href={ templ.URL(util.PathParams("/posts", p.ID)) }
 			>
-				{ strconv.Itoa(p.ID) + " — " + p.Title }
+				{ p.Title }
 			</a>
 			<div class="text-sm flex w-fit space-x-1">
 				<p class="post-info px-1">
@@ -220,68 +221,66 @@ templ CreatorCard(u data.User) {
 }
 
 templ CreatePost() {
-	@layouts.Base() {
-		<div class="py-5 flex justify-center">
-			<div hx-boost="true" class="container max-w-screen-md px-5">
-				<form
-					id="post-form"
-					action="/posts/create"
-					method="post"
-					hx-target="#base"
-					hx-push-url="false"
-					class="bg-gray-200 shadow-2xl rounded p-6 mb-4"
-				>
-					<div class="mb-4">
-						<input
-							required
-							autofocus
-							class="text-xl font-bold border border-black rounded w-full p-2 text-gray-700 leading-tight"
-							id="title"
-							name="title"
-							type="text"
-							placeholder="Title"
-						/>
-					</div>
-					<div class="mb-4 flex items-center">
-						<span class="text-xl mr-2">#</span>
-						<input
-							id="tag-input"
-							name="new-tag"
-							type="text"
-							class="border border-black rounded w-full p-2 text-gray-700 max-w-40"
-							placeholder="Add a tag"
-							_="on keydown
-                                if event.key is 'Enter'
-                                    event.preventDefault()
-                                    call addTag(my value)
-                                end"
-						/>
-						<div id="tags" class="flex justify-items-start flex-wrap"></div>
-					</div>
-					<input hidden type="text" name="tags" id="input-tags" value=""/>
-					<div class="mb-4">
-						<textarea
-							required
-							rows="10"
-							class="border border-black rounded w-full p-2 text-gray-700 leading-tight"
-							id="content"
-							name="content"
-							type="text"
-							placeholder="What are you writing about?"
-						></textarea>
-					</div>
-					<div class="flex items-end">
-						<button
-							class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-2 px-4"
-						>
-							Post
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-		<script src="/public/scripts/tags.js" defer></script>
-	}
+    <div class="py-5 flex justify-center">
+        <div hx-boost="true" class="container max-w-screen-md px-5">
+            <form
+                id="post-form"
+                action="/posts/create"
+                method="post"
+                hx-target="#blog-page"
+                hx-push-url="false"
+                class="bg-gray-200 shadow-2xl rounded p-6 mb-4"
+            >
+                <div class="mb-4">
+                    <input
+                        required
+                        autofocus
+                        class="text-xl font-bold border border-black rounded w-full p-2 text-gray-700 leading-tight"
+                        id="title"
+                        name="title"
+                        type="text"
+                        placeholder="Title"
+                    />
+                </div>
+                <div class="mb-4 flex items-center">
+                    <span class="text-xl mr-2">#</span>
+                    <input
+                        id="tag-input"
+                        name="new-tag"
+                        type="text"
+                        class="border border-black rounded w-full p-2 text-gray-700 max-w-40"
+                        placeholder="Add a tag"
+                        _="on keydown
+                            if event.key is 'Enter'
+                                event.preventDefault()
+                                call addTag(my value)
+                            end"
+                    />
+                    <div id="tags" class="flex justify-items-start flex-wrap"></div>
+                </div>
+                <input hidden type="text" name="tags" id="input-tags" value=""/>
+                <div class="mb-4">
+                    <textarea
+                        required
+                        rows="10"
+                        class="border border-black rounded w-full p-2 text-gray-700 leading-tight"
+                        id="content"
+                        name="content"
+                        type="text"
+                        placeholder="What are you writing about?"
+                    ></textarea>
+                </div>
+                <div class="flex items-end">
+                    <button
+                        class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-2 px-4"
+                    >
+                        Post
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/public/scripts/tags.js" defer></script>
 }
 
 templ Tag(tag string) {
