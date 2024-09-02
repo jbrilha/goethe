@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"goethe/auth"
 	"goethe/data"
@@ -20,31 +21,28 @@ import (
 )
 
 func BlogBase(c echo.Context) error {
-	posts, err := db.GetBlogPosts()
+	id, _ := strconv.Atoi(c.QueryParam("id"))
+    fmt.Printf("c.QueryParam(\"c\"): %v\n", c.QueryParam("c"))
+    timestamp, err := time.Parse("01-02-2006 15:04:05:00", c.QueryParam("ts"))
+	if err != nil {
+		log.Println("ts", err)
+	}
+
+	posts, err := db.GetBlogPosts(id, timestamp)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())
 	}
-	return Render(c, blog.Index(posts))
+
+	if timestamp.IsZero() {
+		return Render(c, blog.Index(posts))
+	}
+	return Render(c, blog.Posts(posts))
 }
 
 func PostSearch(c echo.Context) error {
-	tag := strings.TrimSpace(c.QueryParam("t"))
-	if tag != "" {
-		p, err := db.SearchPostsByTag(tag)
-
-		if err != nil {
-			log.Println(err)
-			return Render(c, routes.Route404())
-		}
-
-		return Render(c, blog.Index(p))
-	}
-
 	query := strings.TrimSpace(c.QueryParam("q"))
-	if query == "" {
-		return echo.ErrBadRequest
-	}
+
 	sp := parseQuery(query)
 	p, err := db.SearchPosts(sp)
 
@@ -66,7 +64,7 @@ func PostSearch(c echo.Context) error {
 func parseQuery(query string) db.PostSearchParams {
 	re := regexp.MustCompile(`"(.*?)"|from:(\S+)|#(\w+)`)
 
-    sp := db.PostSearchParams{}
+	sp := db.PostSearchParams{}
 
 	// var creator string
 	// var exactTerms []string
@@ -93,7 +91,7 @@ func parseQuery(query string) db.PostSearchParams {
 		sp.FuzzyTerms = strings.Fields(query)
 	}
 
-    return sp
+	return sp
 }
 func CreatorCard(c echo.Context) error {
 	username := c.Param("creator")

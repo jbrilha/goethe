@@ -1,7 +1,9 @@
 package blog
 
 import (
-	"fmt"
+    "fmt"
+    "time"
+
 	"goethe/data"
 	"goethe/util"
 	"goethe/views/components"
@@ -10,8 +12,23 @@ import (
 )
 
 templ SearchBar() {
-	<search id="search-bar" class="flex justify-center m-2">
-		<form class="max-w-screen-sm w-full" action="/posts/search" method="get" hx-swap="outerHTML" hx-target="#posts">
+	<search
+		id="search-bar"
+		class="flex justify-center m-4"
+		_="on intersection(intersecting)
+            if intersecting transition #scroll-up's opacity to 0
+                then add @disabled to #scroll-up
+            else transition #scroll-up's opacity to 1
+                then remove @disabled from #scroll-up
+            end"
+	>
+		<form
+			class="max-w-screen-sm w-full shadow-xl"
+			action="/posts/search"
+			method="get"
+			hx-swap="outerHTML"
+			hx-target="#posts"
+		>
 			<input
 				class="border border-black p-2 text-gray-700 leading-tight w-full focus:outline-black"
 				id="query"
@@ -33,17 +50,25 @@ templ SearchBar() {
 
 templ Posts(posts []data.Post) {
 	<div id="posts" class="flex justify-center">
-		<ul>
+        <div hx-get="/posts" hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
+            hx-trigger="load" hx-swap="none" hx-select-oob="#posts-list:beforeend"
+        ></div>
+		<ul id="posts-list">
 			for i, post := range posts {
 				<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
-                    if i < len(posts) - 1 {
-					    @PostPreview(post, false)
-                    } else {
-					    @PostPreview(post, false)
+                    if i == len(posts) - 3 {
+                        <div hx-get="/posts"
+                            hx-vals={ util.QueryParams(
+                                        "id", posts[len(posts) - 1].ID,
+                                        "ts", posts[len(posts) - 1].CreatedAt.Format("01-02-2006 15:04:05:00"),
+                                    ) }
+                            hx-trigger="revealed" hx-swap="none" hx-select-oob="#posts-list:beforeend"
+                        ></div>
                     }
-				</li>
+                    @PostPreview(post)
+                </li>
 			}
-		</ul>
+        </ul>
 	</div>
 }
 
@@ -55,42 +80,56 @@ templ Index(posts []data.Post) {
 		<div id="blog-page" hx-boost="true">
 			@SearchBar()
 			@Posts(posts)
+			@ScrollUp()
 		</div>
 	}
 }
 
-templ PostPreview(p data.Post, last bool) {
+templ ScrollUp() {
+	<button
+		id="scroll-up"
+		type="button"
+		class="opacity-0 fixed right-3 bottom-3
+        text-3xl p-1 btn-black rounded-full"
+		_="on click go to the top of #main smoothly"
+	>
+		&#8673;
+	</button>
+}
+
+templ PostPreview(p data.Post) {
 	<article
 		id="blog-post"
 		class="container max-w-screen-md max-h-96 px-4 py-2 relative shadow-xl"
+		_="on intersection(intersecting)
+            if intersecting transition opacity to 1
+            else transition opacity to 0 "
 	>
 		<div class="mb-2 inline-block">
 			<a
 				class="post-info mb-1 text-3xl font-bold line-clamp-2 px-2 py-1 w-fit"
-				hx-target="#base"
+				hx-target="#posts"
 				href={ templ.URL(util.PathParams("/posts", p.ID)) }
 			>
-				{ p.Title }
+				{ strconv.Itoa(p.ID) + " — " + p.Title }
 			</a>
-			<p class="text-sm post-info w-fit px-1">
-				<a
-					class="font-bold hover:underline"
-					hx-target="#base"
-					href={ templ.URL(util.PathParams("/profile",
-                p.Creator)) }
-				>
-					{ p.Creator }
-				</a>
-				| { p.CreatedAt.Format("01-02-2006") }
-			</p>
+			<div class="text-sm flex w-fit space-x-1">
+				<p class="post-info px-1">
+					<a
+						class="font-bold hover:underline"
+						hx-target="#base"
+						href={ templ.URL(util.PathParams("/profile",
+                    p.Creator)) }
+					>
+						&commat;{ p.Creator }
+					</a>
+				</p>
+				<p class="post-info px-1">
+					{ p.CreatedAt.Format("01-02-2006 15:04") }
+				</p>
+			</div>
 		</div>
-		<div id="content" class="text-xl line-clamp-6"
-        if last {
-            hx-get="/posts"
-            hx-trigger="revealed"
-            hx-swap="afterend"
-        }
-        >
+		<div id="content" class="text-xl line-clamp-6">
 			{ p.Content }
 		</div>
 		<!-- fade out: https://gist.github.com/drikusroor/aa48937c59b3d6123ca43ae9c660661d
@@ -103,27 +142,25 @@ templ PostPreview(p data.Post, last bool) {
 }
 
 templ Post(p data.Post) {
-	@layouts.Base() {
-		<div class="py-5 flex justify-center relative">
-			<article
-				id="blog-post"
-				class="max-w-screen-md px-4 py-2 relative
-				rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-2xl"
-			>
-				<div class="mb-2">
-					<h1 class="text-3xl font-bold">
-						{ p.Title }
-					</h1>
-				</div>
-				<div class="text-xl">
-					{ p.Content }
-				</div>
-				<div class="absolute -left-64 -top-0 mx-4">
-					@PostInfoCard(p)
-				</div>
-			</article>
-		</div>
-	}
+	<div class="py-5 flex justify-center relative">
+		<article
+			id="blog-post"
+			class="max-w-screen-md px-4 py-2 relative
+            rounded-lg bg-gray-200 border-b-4 border-l-4 border-gray-300 shadow-2xl"
+		>
+			<div class="mb-2">
+				<h1 class="text-3xl font-bold">
+					{ p.Title }
+				</h1>
+			</div>
+			<div class="text-xl">
+				{ p.Content }
+			</div>
+			<div class="absolute -left-64 -top-0 mx-4">
+				@PostInfoCard(p)
+			</div>
+		</article>
+	</div>
 }
 
 templ PostInfoCard(p data.Post) {
@@ -155,11 +192,7 @@ templ PostInfoCard(p data.Post) {
 		if len(p.Tags) > 0 {
 			<div id="tags" class="flex justify-items-start flex-wrap max-w-48 bg-gray-400 rounded p-1">
 				for _, tag := range p.Tags {
-					<a
-						hx-target="#base"
-						hx-vals={ util.QueryParams("t", tag) }
-						href={ templ.URL("/posts/search") }
-					>
+					<a hx-target="#posts" hx-vals={ util.QueryParams("q", "#"+tag) } href={ templ.URL("/posts/search") }>
 						<button id="tag" class="rounded-full bg-yellow-200 hover:font-bold px-2 m-1">
 							#{ tag }
 						</button>

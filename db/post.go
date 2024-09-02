@@ -209,10 +209,13 @@ func SearchPostsByTag(tag string) ([]data.Post, error) {
 	return getPosts(query, tag)
 }
 
-func GetBlogPosts() ([]data.Post, error) {
-	query := `SELECT * FROM post ORDER BY created_at DESC`
+func GetBlogPosts(id int, timestamp time.Time) ([]data.Post, error) {
+	query := `SELECT * FROM post
+            WHERE (id > $1 AND created_at < $2) OR (created_at < $2)
+            ORDER BY (created_at, id) DESC
+            LIMIT 20`
 
-	return getPosts(query)
+	return getPosts(query, id, timestamp)
 }
 
 func getPosts(query string, args ...any) ([]data.Post, error) {
