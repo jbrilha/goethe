@@ -19,6 +19,7 @@ type PostSearchParams struct {
 	ExactTerms []string
 	ID         int
 	Timestamp  time.Time
+	Limit      int
 }
 
 func InsertBlogPost(p *data.Post) (int, error) {
@@ -150,7 +151,6 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 
 	if fCount > 0 {
 		query.WriteString(`(`)
-		log.Println("fuzzy")
 		for _, term := range sp.FuzzyTerms { // TODO already looping through terms in the handler, figure out optimization
 			q = append(
 				q,
@@ -166,7 +166,6 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 
 	if eCount > 0 {
 		q = []string{}
-		log.Println("exact")
 		if fCount > 0 {
 			query.WriteString(" AND (")
 		}
@@ -188,7 +187,6 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 	}
 
 	if tCount > 0 {
-		log.Println("tags")
 		if fCount > 0 || eCount > 0 {
 			query.WriteString(" AND (")
 		}
@@ -205,7 +203,8 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 		query.WriteString(`)`)
 	}
 
-	query.WriteString(` ORDER BY created_at DESC`)
+	args = append(args, sp.Limit)
+	query.WriteString(` ORDER BY created_at DESC LIMIT $` + fmt.Sprint(offset))
 
 	return getPosts(query.String(), args...)
 }

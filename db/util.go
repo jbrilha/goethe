@@ -30,17 +30,6 @@ func New(connStr string) {
 	// for _, post := range data.GetPosts() {
 	// 	InsertBlogPost(&post)
 	// }
-
-	// u := data.User{
-	// 	Username:  "root",
-	// 	Password:  "root",
-	// 	Email:     "root@email.com",
-	// 	CreatedAt: time.Now(),
-	// }
-	//
-	// pk := InsertUser(u)
-	// log.Println(pk)
-
 }
 
 func emptyNullString(ns sql.NullString) string {
