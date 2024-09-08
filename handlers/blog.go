@@ -14,10 +14,12 @@ import (
 	"goethe/data"
 	"goethe/db"
 	"goethe/util"
+	"goethe/util/policy"
 	"goethe/views/blog"
 	"goethe/views/routes"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/net/html"
 )
 
 func BlogBase(c echo.Context) error {
@@ -33,12 +35,18 @@ func PostSearch(c echo.Context) error {
 	if err != nil {
 		log.Println("ts err:", err)
 	}
+	limit, err := strconv.Atoi(c.QueryParam("l"))
+	if err != nil {
+		log.Println("limit err:", err)
+        limit = 10
+	}
 
 	query := strings.TrimSpace(c.QueryParam("q"))
 
 	sp := parseParams(query)
 	sp.ID = id
 	sp.Timestamp = timestamp
+    sp.Limit = limit
 
 	p, err := db.SearchPosts(sp)
 	if err != nil {
@@ -144,28 +152,16 @@ func BlogPostJSON(c echo.Context, idStr string) error {
 	}
 
 	return c.JSON(http.StatusOK, p)
-
 }
 
 func CreateBlogPostForm(c echo.Context) error {
 	return Render(c, blog.CreatePost())
 }
 
-func validateTag(tag string) error {
-	alphaNum := `^[a-zA-Z0-9_]+$`
-	re := regexp.MustCompile(alphaNum)
-
-	if !re.MatchString(tag) {
-		return errors.New("Only alphanumeric characters and underscores in tags!")
-	}
-
-	return nil
-}
-
 func AddTag(c echo.Context) error {
 	tag := c.QueryParam("tag")
 
-	if err := validateTag(tag); err != nil {
+	if err := validateHashtag(tag); err != nil {
 		return alert(c, err.Error(), true)
 	}
 
@@ -174,7 +170,7 @@ func AddTag(c echo.Context) error {
 
 func CreateBlogPostSubmission(c echo.Context) error {
 	title := c.FormValue("title")
-	content := c.FormValue("content")
+	content := strings.TrimSpace(c.FormValue("content"))
 	tags := c.FormValue("tags")
 
 	jwtCookie, err := util.ReadCookie(c, "JWT")
@@ -187,19 +183,80 @@ func CreateBlogPostSubmission(c echo.Context) error {
 	}
 	creator, err := token.Claims.GetSubject()
 	if err != nil {
+		// TODO probably shouldn't return a teapot here
 		return c.JSON(http.StatusTeapot, data.Post{})
 	}
 
+	content = policy.Sanitize(content)
+	if err := validateHTMLTags(content); err != nil {
+		return alert(c, err.Error(), true)
+	}
+
 	tagSlice := strings.Fields(tags)
-	p := data.Post{Creator: creator, Title: title, Tags: tagSlice, Content: content}
+	p := data.Post{
+		Creator: creator,
+		Title:   title,
+		Tags:    tagSlice,
+		Content: strings.Join(strings.Split(content, "\n"), "<br/>"),
+	}
 
 	_, err = db.InsertBlogPost(&p)
 	if err != nil {
 		log.Println("err in insertion:", err)
+		return alert(c, err.Error(), true)
 	}
-	log.Println(p.ID)
 
 	p.Views += 1
 	c.Response().Header().Add("HX-Push-Url", fmt.Sprintf("/posts/%v", p.ID))
 	return Render(c, blog.Post(p))
+}
+
+func validateHTMLTags(input string) error {
+	reader := strings.NewReader(input)
+	tokenizer := html.NewTokenizer(reader)
+
+	var stack []string
+
+	for {
+		tt := tokenizer.Next()
+		switch tt {
+		case html.ErrorToken:
+			if tokenizer.Err().Error() == "EOF" {
+				if len(stack) > 0 {
+					return fmt.Errorf("Unclosed tags: %v", stack)
+				} else {
+					return nil
+				}
+			}
+			return fmt.Errorf("Error parsing HTML:", tokenizer.Err())
+		case html.SelfClosingTagToken:
+			continue
+		case html.StartTagToken:
+			tagName, _ := tokenizer.TagName()
+            // if string(tagName) == "br" {
+            //     continue
+            // }
+			stack = append(stack, "<"+string(tagName)+">")
+		case html.EndTagToken:
+			tagName, _ := tokenizer.TagName()
+			if len(stack) == 0 {
+				return fmt.Errorf("Unexpected closing tag: [</%v>]", string(tagName))
+			}
+			if stack[len(stack)-1] != ("<" + string(tagName) + ">") {
+				return fmt.Errorf("Incorrect tag nesting: %v ... [</%v>]", stack, string(tagName))
+			}
+			stack = stack[:len(stack)-1]
+		}
+	}
+}
+
+func validateHashtag(tag string) error {
+	alphaNum := `^[a-zA-Z0-9_]+$`
+	re := regexp.MustCompile(alphaNum)
+
+	if !re.MatchString(tag) {
+		return errors.New("Only alphanumeric characters and underscores in tags!")
+	}
+
+	return nil
 }
