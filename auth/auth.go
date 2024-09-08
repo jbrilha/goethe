@@ -30,7 +30,7 @@ func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 			}
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
 		} else {
-			token, err := ValidateJWT(jwtCookie.Value)
+			_, err := ValidateJWT(jwtCookie.Value)
 			if err != nil {
 				log.Println(err)
 				if c.Request().Header.Get("HX-Request") != "" {
@@ -41,10 +41,10 @@ func WithJWT(fn echo.HandlerFunc, altfn echo.HandlerFunc) echo.HandlerFunc {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
 			}
 
-			claims := token.Claims.(jwt.MapClaims)
+			// claims := token.Claims.(jwt.MapClaims)
 
-			log.Println("CLAIMS:", claims)
-			log.Println("TOKEN:", token.Raw)
+			// log.Println("CLAIMS:", claims)
+			// log.Println("TOKEN:", token.Raw)
 
 			// c.Set("JWT", token.Raw)
 
@@ -58,7 +58,7 @@ func CreateJWT(u data.User, remember bool) (string, error) {
 	if remember {
 		expiresAt = jwt.NewNumericDate(time.Now().Add(720 * time.Hour)) // 30 days
 	} else {
-		expiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
+		expiresAt = jwt.NewNumericDate(time.Now().Add(30 * time.Minute))
 	}
 
 	claims := jwt.RegisteredClaims{
