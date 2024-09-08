@@ -47,7 +47,7 @@ templ SearchBar() {
 			/>
 		</form>
 	</search>
-	<script src="/public/scripts/util.js" defer></script>
+	<script src="/public/scripts/util.js" defer></script> // TODO I should merge the tag helpers into this one file I think, but where to call it?
 }
 
 templ Posts(posts []data.Post) {
@@ -55,6 +55,7 @@ templ Posts(posts []data.Post) {
 		<ul id="posts-list">
 			for i, post := range posts {
 				<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
+                    // to start loading more before I reeach the actual end of the page
                     if i == len(posts) - 3 {
                         <div hx-get="/posts/search"
                             hx-vals={ util.QueryParams(
@@ -131,7 +132,7 @@ templ PostPreview(p data.Post) {
 			</div>
 		</div>
 		<div id="content" class="text-xl line-clamp-6">
-			{ p.Content }
+				@templ.Raw(p.Content)
 		</div>
 		<!-- fade out: https://gist.github.com/drikusroor/aa48937c59b3d6123ca43ae9c660661d
             need "relative" up in the article otherwise it's applied to the entire page -->
@@ -155,7 +156,7 @@ templ Post(p data.Post) {
 				</h1>
 			</div>
 			<div class="text-xl">
-				{ p.Content }
+				@templ.Raw(p.Content)
 			</div>
 			<div class="absolute -left-64 -top-0 mx-4">
 				@PostInfoCard(p)
@@ -253,6 +254,7 @@ templ CreatePost() {
                         _="on keydown
                             if event.key is 'Enter'
                                 event.preventDefault()
+                                set my value to removeWhiteSpace(my value)
                                 call addTag(my value)
                             end"
                     />
