@@ -77,6 +77,14 @@ function removeTag(tag2remove) {
     }
 }
 
+/**
+ * @param {string} str
+ * @returns {string}
+ */
+function removeWhiteSpace(str) {
+    return str.replace(/\s+/g, " ").trim();
+}
+
 // need this to avoid tsserver errors
 /**
  * @type {any}
