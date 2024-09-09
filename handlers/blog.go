@@ -155,6 +155,9 @@ func BlogPostJSON(c echo.Context, idStr string) error {
 }
 
 func CreateBlogPostForm(c echo.Context) error {
+	if c.Request().Header.Get("HX-Request") == "" {
+		return Render(c, blog.IndexWComponent(blog.CreatePost()))
+	}
 	return Render(c, blog.CreatePost())
 }
 

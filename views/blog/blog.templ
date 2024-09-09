@@ -87,6 +87,14 @@ templ Index() {
     }
 }
 
+templ IndexWComponent(comp templ.Component) {
+    @layouts.Base() {
+        <div id="blog-page" hx-boost="true">
+            @comp
+        </div>
+    }
+}
+
 templ ScrollUp() {
 	<button
 		id="scroll-up"
