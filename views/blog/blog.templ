@@ -6,16 +6,16 @@ import (
 
 	"goethe/data"
 	"goethe/util"
-	"goethe/views/components"
 	"goethe/views/layouts"
 	"strconv"
 )
 
 templ SearchBar() {
+    //  "if #scroll-up exists then" is important to avoid throwing a console error when opening post creation page
 	<search
+		class="max-w-screen-sm w-full"
 		id="search-bar"
-		class="flex justify-center m-4"
-		_="on intersection(intersecting)
+		_="on intersection(intersecting) if #scroll-up exists then
             if intersecting transition #scroll-up's opacity to 0
                 then add @disabled to #scroll-up
             else transition #scroll-up's opacity to 1
@@ -23,7 +23,6 @@ templ SearchBar() {
             end"
 	>
 		<form
-			class="max-w-screen-sm w-full"
 			action="/posts/search"
 			method="get"
             hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
@@ -74,10 +73,10 @@ templ Posts(posts []data.Post) {
 templ Index() {
     @layouts.Base() {
         <div id="blog-page" hx-boost="true">
-            <div class="absolute -right-1 -translate-x-5 translate-y-2">
-                @components.CreatePostButton()
+            <div class="flex justify-center items-center m-4 space-x-2">
+                @SearchBar()
+                @CreatePostButton()
             </div>
-            @SearchBar()
             <div hx-get="/posts/search" hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
                 hx-trigger="load" hx-swap="none" hx-select-oob="#posts-list:beforeend"></div>
             @Posts([]data.Post{})
@@ -109,14 +108,14 @@ templ ScrollUp() {
 templ PostPreview(p data.Post) {
 	<article
 		id="blog-post"
-		class="container max-w-screen-md max-h-96 px-4 py-2 relative shadow-xl"
+		class="container max-w-screen-md max-h-96 px-4 py-2 relative shadow-xl bg-gray-50"
 		_="on intersection(intersecting)
             if intersecting transition opacity to 1
             else transition opacity to 0 "
 	>
 		<div class="mb-2 inline-block">
 			<a
-				class="post-info mb-1 text-3xl font-bold line-clamp-2 px-2 py-1 w-fit"
+				class="post-info mb-1 text-3xl font-bold line-clamp-2 px-2 py-1 w-fit hover:text-gray-200"
 				hx-target="#posts"
 				href={ templ.URL(util.PathParams("/posts", p.ID)) }
 			>
@@ -125,7 +124,7 @@ templ PostPreview(p data.Post) {
 			<div class="text-sm flex w-fit space-x-1">
 				<p class="post-info px-1">
 					<a
-						class="font-bold hover:underline"
+						class="font-bold hover:text-gray-200"
 						hx-target="#base"
 						href={ templ.URL(util.PathParams("/profile",
                     p.Creator)) }
@@ -237,13 +236,13 @@ templ CreatePost() {
                 method="post"
                 hx-target="#blog-page"
                 hx-push-url="false"
-                class="bg-gray-200 shadow-2xl rounded p-6 mb-4"
+                class="bg-gray-50 shadow-2xl p-6 mb-4"
             >
                 <div class="mb-4">
                     <input
                         required
                         autofocus
-                        class="text-xl font-bold border border-black rounded w-full p-2 text-gray-700 leading-tight"
+                        class="text-xl font-bold border border-black w-full p-2 text-gray-700 leading-tight focus:outline-none"
                         id="title"
                         name="title"
                         type="text"
@@ -256,8 +255,8 @@ templ CreatePost() {
                         id="tag-input"
                         name="new-tag"
                         type="text"
-                        class="border border-black rounded w-full p-2 text-gray-700 max-w-40"
-                        placeholder="Add a tag"
+                        class="border border-black w-fit p-2 text-gray-700"
+                        placeholder="Add tags"
                         _="on keydown
                             if event.key is 'Enter'
                                 event.preventDefault()
@@ -272,21 +271,64 @@ templ CreatePost() {
                     <textarea
                         required
                         rows="10"
-                        class="border border-black rounded w-full p-2 text-gray-700 leading-tight"
+                        class="border border-black w-full p-2 text-gray-700 leading-tight"
                         id="content"
                         name="content"
                         type="text"
-                        placeholder="What are you writing about?"
+                        placeholder="Write about something..."
                     ></textarea>
                 </div>
-                <div class="flex items-end">
+                <div class="flex items-center space-x-2">
                     <button
                         class="border border-green-600 bg-green-400 hover:text-green-600 hover:bg-black text-black font-bold py-2 px-4"
                     >
                         Post
                     </button>
+                    <a class="text-gray-400 text-sm hover:underline"
+                        href="#"
+                        _="on click event.preventDefault() wait 0.01s then show #dark-bg show #format-info ">
+                        Formatting tips
+                    </a>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="dark-bg"
+        style="display: none;"
+        class="fixed inset-0 bg-black bg-opacity-50"
+        _="on click hide #format-info hide me">
+    </div>
+    <div id="format-info"
+        style="display: none;"
+        class="absolute border border-black bg-white shadow-2xl m-10 p-2
+            top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/4"
+            _="on click from elsewhere if my style.display is not 'none' hide me hide #dark-bg end">
+        <h1 class="text-xl font-bold m-2">Formatting Tips</h1>
+        <h1 class="text-md m-2">Basic HTML tags are allowed (and encouraged):</h1>
+        <ul class="text-sm m-2 list-disc list-inside">
+            <li>
+                <b>bold text</b>: &lt;b&gt;bold text&lt;/b&gt;
+            </li>
+            <li>
+                <i>italic text</i>: &lt;i&gt;italic text&lt;/i&gt;
+            </li>
+            <li>
+                <u>underlined text</u>: &lt;u&gt;underlined text&lt;/u&gt;
+            </li>
+            <li>
+                <s>striked text</s>: &lt;s&gt;striked text&lt;/s&gt;
+            </li>
+        </ul>
+        <p class="m-2 font-bold">
+            Tags must be properly nested and closed!
+        </p>
+        <div class="absolute top-1 right-1">
+            <button type="button" class="btn-black px-2 flex items-center justify-center"
+            _="on click hide #format-info hide #dark-bg"
+            >
+                &times;
+            </button>
         </div>
     </div>
 }
