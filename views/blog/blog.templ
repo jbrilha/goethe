@@ -311,3 +311,13 @@ templ Tag(tag string) {
 		</button>
 	</div>
 }
+
+templ CreatePostButton() {
+    <button id="new-post"
+        class="btn-black font-bold px-3 py-1"
+        hx-get="/posts/create" hx-target="#blog-page" hx-push-url="true">
+        New Post
+    </button>
+}
+
+
