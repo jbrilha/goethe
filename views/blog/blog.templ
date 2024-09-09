@@ -47,7 +47,6 @@ templ SearchBar() {
 			/>
 		</form>
 	</search>
-	<script src="/public/scripts/util.js" defer></script> // TODO I should merge the tag helpers into this one file I think, but where to call it?
 }
 
 templ Posts(posts []data.Post) {
@@ -290,7 +289,6 @@ templ CreatePost() {
             </form>
         </div>
     </div>
-    <script src="/public/scripts/tags.js" defer></script>
 }
 
 templ Tag(tag string) {
