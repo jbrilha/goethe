@@ -231,7 +231,7 @@ func validateHTMLTags(input string) error {
 					return nil
 				}
 			}
-			return fmt.Errorf("Error parsing HTML:", tokenizer.Err())
+			return fmt.Errorf("Error parsing HTML: %v", tokenizer.Err())
 		case html.SelfClosingTagToken:
 			continue
 		case html.StartTagToken:
