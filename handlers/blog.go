@@ -31,10 +31,22 @@ func PostSearch(c echo.Context) error {
 	if err != nil {
 		log.Println("id err:", err)
 	}
-	timestamp, err := time.Parse("01-02-2006 15:04:05:00", c.QueryParam("ts"))
-	if err != nil {
-		log.Println("ts err:", err)
-	}
+
+
+    timestamp, err := time.Parse("01-02-2006 15:04:05:00", c.QueryParam("ts"))
+        if err != nil {
+            log.Println("ts err:", err)
+        }
+	refresh, err := strconv.ParseBool(c.QueryParam("r"))
+	if err != nil || refresh == false {
+		log.Println("refresh err:", err)
+        log.Println("ts", timestamp)
+
+	} else {
+        log.Println("r true?")
+        log.Println("tsn", timestamp)
+    }
+
 	limit, err := strconv.Atoi(c.QueryParam("l"))
 	if err != nil {
 		log.Println("limit err:", err)
@@ -47,6 +59,7 @@ func PostSearch(c echo.Context) error {
 	sp.ID = id
 	sp.Timestamp = timestamp
     sp.Limit = limit
+    sp.Refresh = refresh
 
 	p, err := db.SearchPosts(sp)
 	if err != nil {

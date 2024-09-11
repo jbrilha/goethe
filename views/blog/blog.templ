@@ -49,18 +49,20 @@ templ SearchBar() {
 }
 
 templ Posts(posts []data.Post) {
+    @Refresh()
 	<div id="posts" class="flex justify-center">
 		<ul id="posts-list">
 			for i, post := range posts {
 				<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
                     // to start loading more before I reeach the actual end of the page
-                    if i == len(posts) - 3 {
+                    // TODO FIX QUERY PARAMS INCLUDING ID
+                    if len(posts) > 5 && i == len(posts) - 3 {
                         <div hx-get="/posts/search"
                             hx-vals={ util.QueryParams(
                                         "id", posts[len(posts) - 1].ID,
-                                        "ts", posts[len(posts) - 1].CreatedAt.Format("01-02-2006 15:04:05:00"),
+                                        "r", false, 
                                     ) }
-                            hx-trigger="revealed" hx-swap="none" hx-select-oob="#posts-list:beforeend"
+                            hx-trigger="revealed" hx-select-oob="#posts-list:beforeend"
                         ></div>
                     }
                     @PostPreview(post)
@@ -70,25 +72,60 @@ templ Posts(posts []data.Post) {
 	</div>
 }
 
+templ Refresh(){
+// TODO time.Now only triggers at page load
+    <div id="refresh"
+        hx-get="/posts/search"
+        hx-vals={ util.QueryParams(
+                    "ts", time.Now().Format("01-02-2006 15:04:05:00"),
+                    "r", true,
+                ) }
+        hx-trigger="every 2s"
+        hx-swap="outerHTML"
+        hx-select="#refresh"
+        hx-select-oob="#posts-list:afterbegin">
+    </div>
+} 
+
+templ Fetch(){
+    <div id="fetch"
+        hx-get="/posts/search"
+        hx-vals={ util.QueryParams(
+                    "ts", time.Now().Format("01-02-2006 15:04:05:00"),
+                    "r", false,
+                ) }
+        hx-trigger="load"
+        hx-select-oob="#posts-list:beforeend"
+        _="on htmx:afterSwap remove me"
+        >
+    </div>
+} 
+
 templ Index() {
     @layouts.Base() {
         <div id="blog-page" hx-boost="true">
-            <div class="flex justify-center items-center m-4 space-x-2">
-                @SearchBar()
-                @CreatePostButton()
-            </div>
-            <div hx-get="/posts/search" hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
-                hx-trigger="load" hx-swap="none" hx-select-oob="#posts-list:beforeend"></div>
+            @PageElements()
             @Posts([]data.Post{})
-            @ScrollUp()
         </div>
     }
 }
 
-templ IndexWComponent(comp templ.Component) {
+templ PageElements() {
+    <div class="flex justify-center items-center m-4 space-x-2">
+        @Fetch()
+        @SearchBar()
+        @CreatePostButton()
+        @ScrollUp()
+    </div>
+    
+}
+
+templ IndexWComponent(comps ...templ.Component) {
     @layouts.Base() {
         <div id="blog-page" hx-boost="true">
-            @comp
+            for _, comp := range comps {
+                @comp
+            }
         </div>
     }
 }
@@ -119,7 +156,7 @@ templ PostPreview(p data.Post) {
 				hx-target="#posts"
 				href={ templ.URL(util.PathParams("/posts", p.ID)) }
 			>
-				{ p.Title }
+				{ strconv.Itoa(p.ID) + p.Title }
 			</a>
 			<div class="text-sm flex w-fit space-x-1">
 				<p class="post-info px-1">

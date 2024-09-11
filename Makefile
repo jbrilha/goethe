@@ -15,4 +15,4 @@ air:
 	@air
 
 dev:
-	make -j3 css templ
+	make -j3 css templ air

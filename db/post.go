@@ -20,6 +20,7 @@ type PostSearchParams struct {
 	ID         int
 	Timestamp  time.Time
 	Limit      int
+    Refresh bool
 }
 
 func InsertBlogPost(p *data.Post) (int, error) {
@@ -127,21 +128,25 @@ func GetBlogPosts(id int, timestamp time.Time) ([]data.Post, error) {
 func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 	var query strings.Builder
 	args := []any{}
-	offset := 3
+	offset := 2
 	fCount := len(sp.FuzzyTerms)
 	eCount := len(sp.ExactTerms)
 	tCount := len(sp.Tags)
 
+	query.WriteString(`SELECT * FROM post WHERE `)
 	if sp.Creator == "" {
-		query.WriteString(`SELECT * FROM post
-            WHERE ((id > $1 AND created_at < $2) OR (created_at < $2))`)
+        if sp.Refresh {
+		    query.WriteString(`(created_at > $1)`)
+        } else {
+		    query.WriteString(`(created_at < $1)`)
+        }
+	args = append(args, sp.Timestamp)
 	} else {
-		query.WriteString(`SELECT * FROM post
-            WHERE creator = $1 AND ((id > $2 AND created_at < $3) OR (created_at < $3))`)
+		query.WriteString(`creator = $1 AND ((id > $2 AND created_at < $3) OR (created_at < $3))`)
 		offset = 4
 		args = []any{sp.Creator}
-	}
 	args = append(args, sp.ID, sp.Timestamp)
+	}
 
 	if tCount > 0 || fCount > 0 || eCount > 0 {
 		query.WriteString(` AND (`)
