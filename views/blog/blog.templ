@@ -28,6 +28,8 @@ templ SearchBar() {
             hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
 			hx-swap="outerHTML show:none"
 			hx-target="#posts"
+            hx-select="#posts"
+            hx-select-oob="#refresh:outerHTML"
             hx-push-url="false"
 		>
 			<input
@@ -57,13 +59,7 @@ templ Posts(posts []data.Post) {
                     // to start loading more before I reeach the actual end of the page
                     // TODO FIX QUERY PARAMS INCLUDING ID
                     if len(posts) > 5 && i == len(posts) - 3 {
-                        <div hx-get="/posts/search"
-                            hx-vals={ util.QueryParams(
-                                        "id", posts[len(posts) - 1].ID,
-                                        "r", false, 
-                                    ) }
-                            hx-trigger="revealed" hx-select-oob="#posts-list:beforeend"
-                        ></div>
+                        @infScroll(posts[len(posts) - 1].CreatedAt.Format("01-02-2006 15:04:05:00"))
                     }
                     @PostPreview(post)
                 </li>
@@ -80,23 +76,34 @@ templ Refresh(){
                     "ts", time.Now().Format("01-02-2006 15:04:05:00"),
                     "r", true,
                 ) }
-        hx-trigger="every 2s"
-        hx-swap="outerHTML"
         hx-select="#refresh"
-        hx-select-oob="#posts-list:afterbegin">
+        hx-swap="outerHTML"
+        hx-trigger="every 30s"
+        hx-include="previous input"
+        hx-select-oob="#posts-list:afterbegin"
+        >
     </div>
-} 
+}
+
+templ infScroll(timestamp string) {
+    <div hx-get="/posts/search"
+        hx-vals={ util.QueryParams("ts", timestamp, "r", false) }
+        hx-trigger="revealed"
+        hx-select-oob="#posts-list:beforeend"
+        hx-include="previous input"
+    ></div>
+}
 
 templ Fetch(){
     <div id="fetch"
         hx-get="/posts/search"
         hx-vals={ util.QueryParams(
                     "ts", time.Now().Format("01-02-2006 15:04:05:00"),
-                    "r", false,
+                    "f", true,
                 ) }
         hx-trigger="load"
         hx-select-oob="#posts-list:beforeend"
-        _="on htmx:afterSwap remove me"
+        _="on htmx:afterSwap remove me log 'fetched and removed'"
         >
     </div>
 } 
@@ -135,7 +142,7 @@ templ ScrollUp() {
 		id="scroll-up"
 		type="button"
 		class="opacity-0 fixed right-3 bottom-3
-        text-3xl p-1 btn-black rounded-full"
+        text-3xl p-1 btn-black rounded-full z-50"
 		_="on click go to the top of #main smoothly"
 	>
 		&#8673;
@@ -156,7 +163,7 @@ templ PostPreview(p data.Post) {
 				hx-target="#posts"
 				href={ templ.URL(util.PathParams("/posts", p.ID)) }
 			>
-				{ strconv.Itoa(p.ID) + p.Title }
+				{ strconv.Itoa(p.ID) + " — " + p.Title }
 			</a>
 			<div class="text-sm flex w-fit space-x-1">
 				<p class="post-info px-1">

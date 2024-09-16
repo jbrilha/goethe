@@ -134,19 +134,24 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 	tCount := len(sp.Tags)
 
 	query.WriteString(`SELECT * FROM post WHERE `)
-	if sp.Creator == "" {
+    if sp.Creator == "" {
         if sp.Refresh {
 		    query.WriteString(`(created_at > $1)`)
         } else {
 		    query.WriteString(`(created_at < $1)`)
         }
-	args = append(args, sp.Timestamp)
 	} else {
-		query.WriteString(`creator = $1 AND ((id > $2 AND created_at < $3) OR (created_at < $3))`)
-		offset = 4
+		query.WriteString(`creator = $1 AND `)
+        if sp.Refresh {
+		    query.WriteString(`(created_at > $2)`)
+        } else {
+		    query.WriteString(`(created_at < $2)`)
+        }
+		offset = 3
+
 		args = []any{sp.Creator}
-	args = append(args, sp.ID, sp.Timestamp)
 	}
+	    args = append(args, sp.Timestamp)
 
 	if tCount > 0 || fCount > 0 || eCount > 0 {
 		query.WriteString(` AND (`)
