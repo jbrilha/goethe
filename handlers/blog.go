@@ -71,7 +71,7 @@ func PostSearch(c echo.Context) error {
 		// if it's not an htmx request it means it was a direct link access,
 		// therefore I need to send @layouts.Base along with the results or else
 		// it's just the results in plain html (no tailwind etc)
-		return Render(c, blog.Index())
+        return Render(c, blog.IndexWComponent(blog.PageElements(), blog.Posts(p)))
 	}
 
 	return Render(c, blog.Posts(p))
@@ -144,6 +144,9 @@ func BlogPost(c echo.Context) error {
 	}(id)
 
 	p.Views += 1 // just to reflect current visit on page
+	if c.Request().Header.Get("HX-Request") == "" {
+        return Render(c, blog.IndexWComponent(blog.Post(p)))
+	}
 	return Render(c, blog.Post(p))
 }
 
