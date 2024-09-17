@@ -4,9 +4,8 @@
  */
 function addTag(inputTag, formTags) {
     const tag = removeWhiteSpace(inputTag.value);
-    var currentTags = formTags.value;
 
-    if (!validateTag(tag, currentTags)) { inputTag.value = tag; return; }
+    if (!validateTag(tag, formTags.value)) { inputTag.value = tag; return; }
 
     var tags = document.getElementById("tags");
     const tagElem = tags.querySelector("#tag");
@@ -24,12 +23,7 @@ function addTag(inputTag, formTags) {
     _hyperscript.processNode(clone)
 
     inputTag.value = "";
-
-    if (currentTags) {
-        formTags.value = currentTags + "," + tag;
-    } else {
-        formTags.value = tag;
-    }
+    formTags.value += tag + " ";
 }
 
 /**
@@ -45,7 +39,7 @@ function validateTag(tag, currentTags) {
         return false
     }
 
-    var tagsArray = currentTags.split(",").map((tag) => tag.trim());
+    var tagsArray = currentTags.split(" ").map((tag) => tag.trim());
 
     if (tagsArray.includes(tag)) {
         showNotif("Tag '" + tag + "' already added!")
