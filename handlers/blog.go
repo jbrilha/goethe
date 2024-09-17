@@ -28,29 +28,34 @@ func BlogBase(c echo.Context) error {
 
 func PostSearch(c echo.Context) error {
 	id, err := strconv.Atoi(c.QueryParam("id"))
-	if err != nil {
-		log.Println("id err:", err)
-	}
-
+	// if err != nil {
+	// 	log.Println("id err:", err)
+	// }
 
     timestamp, err := time.Parse("01-02-2006 15:04:05:00", c.QueryParam("ts"))
-        if err != nil {
-            log.Println("ts err:", err)
-        }
-	refresh, err := strconv.ParseBool(c.QueryParam("r"))
-	if err != nil || refresh == false {
-		log.Println("refresh err:", err)
-        log.Println("ts", timestamp)
+    // if err != nil {
+    //     log.Println("ts err:", err)
+    // }
 
-	} else {
-        log.Println("r true?")
-        log.Println("tsn", timestamp)
-    }
+	refresh, err := strconv.ParseBool(c.QueryParam("r"))
+	// if err != nil {
+	// 	log.Println("refresh err:", err)
+    // }
+
+	// fetch, err := strconv.ParseBool(c.QueryParam("f"))
+	// if err != nil {
+	// 	log.Println("refresh err:", err)
+    // }
+
+	scroll, err := strconv.ParseBool(c.QueryParam("sc"))
+	// if err != nil {
+	// 	log.Println("refresh err:", err)
+    // }
 
 	limit, err := strconv.Atoi(c.QueryParam("l"))
 	if err != nil {
-		log.Println("limit err:", err)
-        limit = 10
+		// log.Println("limit err:", err)
+        if refresh { limit =  100 } else { limit = 20 }
 	}
 
 	query := strings.TrimSpace(c.QueryParam("q"))
@@ -71,16 +76,36 @@ func PostSearch(c echo.Context) error {
 		// if it's not an htmx request it means it was a direct link access,
 		// therefore I need to send @layouts.Base along with the results or else
 		// it's just the results in plain html (no tailwind etc)
-        return Render(c, blog.IndexWComponent(blog.PageElements(), blog.Posts(p)))
+        return Render(c, blog.IndexWComponent(blog.PageElements(), blog.Posts(p, refresh)))
 	}
 
-	return Render(c, blog.Posts(p))
+    if len(p) == 0 && !refresh {
+        if scroll {
+            log.Println("scrolling but no more results")
+	        c.Response().Header().Add("HX-Retarget", "#posts-list")
+	        c.Response().Header().Add("HX-Reswap", "beforeend")
+
+            return Render(c, blog.NoMorePosts())
+        } else if query != "" {
+            log.Println("queried something but no results")
+            c.Response().Header().Add("HX-Reselect", "#no-posts")
+            c.Response().Header().Add("HX-Reswap", "innerHTML")
+
+            return Render(c, blog.NoPosts())
+        }
+    }
+
+	return Render(c, blog.Posts(p, refresh))
 }
 
 func parseParams(query string) db.PostSearchParams {
-	re := regexp.MustCompile(`"(.*?)"|from:(\S+)|#(\w+)`)
-
 	sp := db.PostSearchParams{}
+
+    if query == "" {
+        return sp
+    }
+
+	re := regexp.MustCompile(`"(.*?)"|from:(\S+)|#(\w+)`)
 
 	matches := re.FindAllStringSubmatch(query, -1)
 	for _, match := range matches {
@@ -104,6 +129,7 @@ func parseParams(query string) db.PostSearchParams {
 
 	return sp
 }
+
 func CreatorCard(c echo.Context) error {
 	username := c.Param("creator")
 

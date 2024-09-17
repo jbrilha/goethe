@@ -25,7 +25,7 @@ templ SearchBar() {
 		<form
 			action="/posts/search"
 			method="get"
-            hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00")) }
+            hx-vals={ util.QueryParams("ts", time.Now().Format("01-02-2006 15:04:05:00"), "sr", true) }
 			hx-swap="outerHTML show:none"
 			hx-target="#posts"
             hx-select="#posts"
@@ -50,26 +50,29 @@ templ SearchBar() {
 	</search>
 }
 
-templ Posts(posts []data.Post) {
+templ Posts(posts []data.Post, afterRefresh bool) {
     @Refresh()
 	<div id="posts" class="flex justify-center">
 		<ul id="posts-list">
 			for i, post := range posts {
 				<li id={ fmt.Sprintf("post-%v", post.ID) } class="mb-4">
-                    // to start loading more before I reeach the actual end of the page
-                    // TODO FIX QUERY PARAMS INCLUDING ID
-                    if len(posts) > 5 && i == len(posts) - 3 {
-                        @infScroll(posts[len(posts) - 1].CreatedAt.Format("01-02-2006 15:04:05:00"))
-                    }
                     @PostPreview(post)
                 </li>
+                // to start loading more before I reeach the actual end of the page
+                if !afterRefresh {
+                    if i == len(posts) - 4 && len(posts) >= 20 {
+                        @infScroll(posts[len(posts) - 1].CreatedAt)
+                    } else if i == len(posts) - 1 && (len(posts) < 20) {
+                        @infScroll(posts[len(posts) - 1].CreatedAt)
+                    }
+                }
 			}
         </ul>
 	</div>
 }
 
 templ Refresh(){
-// TODO time.Now only triggers at page load
+    // TODO time.Now only triggers at page load
     <div id="refresh"
         hx-get="/posts/search"
         hx-vals={ util.QueryParams(
@@ -85,12 +88,17 @@ templ Refresh(){
     </div>
 }
 
-templ infScroll(timestamp string) {
-    <div hx-get="/posts/search"
-        hx-vals={ util.QueryParams("ts", timestamp, "r", false) }
+templ infScroll(timestamp time.Time) {
+    <div id="inf-scroll" 
+        hx-get="/posts/search"
+        hx-vals={ util.QueryParams(
+                    "ts", timestamp.Format("01-02-2006 15:04:05:00"),
+                    "sc", true,
+                ) }
         hx-trigger="revealed"
         hx-select-oob="#posts-list:beforeend"
         hx-include="previous input"
+        _="on htmx:afterRequest remove me"
     ></div>
 }
 
@@ -99,7 +107,7 @@ templ Fetch(){
         hx-get="/posts/search"
         hx-vals={ util.QueryParams(
                     "ts", time.Now().Format("01-02-2006 15:04:05:00"),
-                    "f", true,
+                    // "f", true,
                 ) }
         hx-trigger="load"
         hx-select-oob="#posts-list:beforeend"
@@ -112,7 +120,7 @@ templ Index() {
     @layouts.Base() {
         <div id="blog-page" hx-boost="true">
             @PageElements()
-            @Posts([]data.Post{})
+            @Posts([]data.Post{}, true)
         </div>
     }
 }
@@ -406,4 +414,14 @@ templ CreatePostButton() {
     </button>
 }
 
+templ NoMorePosts() {
+    <li id="no-posts" class="text-center max-w-screen-md px-10 mb-4 w-full">
+        Nothing else to show here
+    </li>
+}
 
+templ NoPosts() {
+    <div id="no-posts" class="text-center max-w-screen-md px-4 mb-4 w-full">
+        No results matching your search
+    </div>
+}
