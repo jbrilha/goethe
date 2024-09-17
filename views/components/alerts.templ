@@ -18,17 +18,17 @@ templ Alert(alertMsg string, timed bool) {
 		>
 			{ alertMsg }
 		</p>
-            <button
-                id="close-button"
-                class="h-full flex-grow-0 px-2 btn-black"
-                type="button"
-                _="on click 
-                    add .fade-hidden to my.parentElement
-                    wait 0.4s 
-                    remove my.parentElement"
-            >
-                &times;
-            </button>
+        <button
+            id="close-button"
+            class="h-full flex-grow-0 px-2 btn-black"
+            type="button"
+            _="on click 
+                add .fade-hidden to my.parentElement
+                wait 0.4s 
+                remove my.parentElement"
+        >
+            &times;
+        </button>
 	</div>
 }
 
