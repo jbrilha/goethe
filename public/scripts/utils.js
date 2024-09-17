@@ -1,75 +1,108 @@
 /**
- * @param {string} tag
+ * @param {HTMLInputElement} inputTag
+ * @param {HTMLInputElement} formTags
  */
-function addTag(tag) {
-    if (tag === "") return;
+function addTag(inputTag, formTags) {
+    const tag = removeWhiteSpace(inputTag.value);
+    var currentTags = formTags.value;
 
-    // TODO maybe it would be smarter to switch to regular browser alerts
-    if (tag.includes(' ')) {
-        const alertMsg = encodeURIComponent("No spaces allowed!");
-        htmx.ajax("GET", `/alert?a=${alertMsg}`);
-        return;
-    }
-
-    var inputTags = document.getElementById("input-tags");
-
-    if (!inputTags || !(inputTags instanceof HTMLInputElement)) {
-        console.error("Couldn't find #input-tags");
-        return;
-    }
-
-    var currentTags = inputTags.value.trim();
-    var tagsArray = currentTags.split(",").map((tag) => tag.trim());
-
-    if (tagsArray.includes(tag)) {
-        const alertMsg = encodeURIComponent("Tag '" + tag + "' already added!");
-        htmx.ajax("GET", `/alert?a=${alertMsg}`);
-        return;
-    }
-
-    const path = `/posts/create?tag=${encodeURIComponent(tag)}`;
-    const ctx = { target: "#tags", swap: "beforeend" };
+    if (!validateTag(tag, currentTags)) { inputTag.value = tag; return; }
 
     var tags = document.getElementById("tags");
-    const tagsLen = tags.children.length;
+    const tagElem = tags.querySelector("#tag");
 
-    htmx.ajax("PUT", path, ctx).then(() => {
-        if (!inputTags || !(inputTags instanceof HTMLInputElement)) {
-            console.error("Couldn't find #input-tags");
-            return;
-        }
+    var clone = tagElem.cloneNode(true);
 
-        if (currentTags) {
-            inputTags.value = currentTags + "," + tag;
-        } else {
-            inputTags.value = tag;
-        }
-        if (tags.children.length != tagsLen) {
-            const tagInput = document.getElementById("tag-input");
-            if (!tagInput || !(tagInput instanceof HTMLInputElement)) {
-                return;
-            }
-            tagInput.value = "";
-        }
-    });
+    // @ts-ignore
+    clone.classList.remove("hidden")
+    // @ts-ignore
+    var tagName = clone.querySelector("#tag-name")
+    tagName.innerHTML = tag
+
+    tags.appendChild(clone)
+
+    _hyperscript.processNode(clone)
+
+    inputTag.value = "";
+
+    if (currentTags) {
+        formTags.value = currentTags + "," + tag;
+    } else {
+        formTags.value = tag;
+    }
 }
 
 /**
- * @param {string} tag2remove
+ * @param {string} tag
+ * @param {string} currentTags
+ * @returns {boolean}
  */
-function removeTag(tag2remove) {
-    var inputTags = document.getElementById("input-tags");
+function validateTag(tag, currentTags) {
+     if (tag === "") return false;
 
-    if (!inputTags || !(inputTags instanceof HTMLInputElement)) {
-        console.error("Couldn't find #input-tags");
-        return;
+    if (tag.match(RegExp('^[a-zA-Z0-9_]+$')) == null) {
+        showNotif("Tags must be alphanumeric with no spaces.<br>_underscores_ are okay ;D")
+        return false
     }
 
-    var tagsArray = inputTags.value.split(",").map((tag) => tag.trim());
+    var tagsArray = currentTags.split(",").map((tag) => tag.trim());
+
+    if (tagsArray.includes(tag)) {
+        showNotif("Tag '" + tag + "' already added!")
+        return false;
+    }
+
+    
+    return true
+}
+
+/**
+ * @param {string} msg
+ */
+function showNotif(msg) {
+    const notif = `
+        <div
+            id="alert"
+            class="m-1 bg-white border-black border-2 p-2 text-lg w-fit max-w-xs flex items-stretch justify-between fade"
+            _="on load wait 5s add .fade-hidden to me wait 0.4s remove me"
+        >
+            <p id="alert-msg" class="pr-2 font-bold">
+                ${msg}
+            </p>
+            <button
+                id="close-button"
+                class="h-full flex-grow-0 px-2 btn-black"
+                type="button"
+                _="on click 
+                    add .fade-hidden to my.parentElement
+                    wait 0.4s 
+                    remove my.parentElement"
+            >
+                &times;
+            </button>
+        </div>
+    `
+
+    var notifs = document.querySelector("#notifications")
+    const alertDiv = document.createElement('div');
+    alertDiv.innerHTML = notif;
+
+    _hyperscript.processNode(alertDiv);
+
+    notifs.appendChild(alertDiv);
+}
+
+
+/**
+ * @param {string} tag2remove
+ * @param {HTMLInputElement} formTags
+ */
+function removeTag(tag2remove, formTags) {
+    var tagsArray = formTags.value.split(",").map((tag) => tag.trim());
 
     var filteredTags = tagsArray.filter((tag) => tag != tag2remove);
 
-    inputTags.value = filteredTags.join(",");
+    formTags.value = filteredTags.join(",");
 
     var tags = document.getElementById("tags");
     if (tags.children.length == 1) {
@@ -86,7 +119,4 @@ function removeWhiteSpace(str) {
 }
 
 // need this to avoid tsserver errors
-/**
- * @type {any}
- */
-var htmx;
+var htmx, _hyperscript;

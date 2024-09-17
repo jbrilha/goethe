@@ -312,13 +312,28 @@ templ CreatePost() {
                         _="on keydown
                             if event.key is 'Enter'
                                 event.preventDefault()
-                                set my value to removeWhiteSpace(my value)
-                                call addTag(my value)
+                                call addTag(me, #form-tags)
                             end"
                     />
-                    <div id="tags" class="flex justify-items-start flex-wrap"></div>
+                        // this works fine as well if I ever want to ditch the js stuff
+                        //_="on keydown
+                        //    if event.key is 'Enter'
+                        //        event.preventDefault()
+                        //        set my value to removeWhiteSpace(my value)
+                        //        if validateTag(my value, #form-tags.value)
+                        //            set tagx to (next <div#tag/>).cloneNode(true)
+                        //            set tagx.querySelector('#tag-name').innerHTML to my value
+                        //            remove .hidden from tagx
+                        //            put tagx.outerHTML at end of #tags
+                        //            append my value + ',' to #form-tags.value
+                        //            set my value to ''
+                        //        end
+                        //    end"
+                    <div id="tags" class="flex justify-items-start flex-wrap">
+                        @Tag("")
+                    </div>
                 </div>
-                <input hidden type="text" name="tags" id="input-tags" value=""/>
+                <input hidden type="text" name="tags" id="form-tags" value=""/>
                 <div class="mb-4">
                     <textarea
                         required
@@ -345,7 +360,13 @@ templ CreatePost() {
             </form>
         </div>
     </div>
+    <div _="on click call showNotif('What')">
+        Hello
+    </div>
+    @FormattingTips()
+}
 
+templ FormattingTips() {
     <div id="dark-bg"
         style="display: none;"
         class="fixed inset-0 bg-black bg-opacity-50"
@@ -386,7 +407,7 @@ templ CreatePost() {
 }
 
 templ Tag(tag string) {
-	<div id="tag" class="flex items-stretch rounded-full bg-yellow-200 px-1 m-1">
+	<div id="tag" class="flex hidden items-stretch rounded-full bg-yellow-200 px-1 m-1">
 		<div class="px-2 flex items-center">
 			<span>#</span>
 			<p id="tag-name">
@@ -398,7 +419,7 @@ templ Tag(tag string) {
 			class="h-full flex-grow-0 px-2 border-l border-black hover:font-bold"
 			type="button"
 			_="on click
-                call removeTag((previous <p#tag-name/>).innerText)
+                call removeTag((previous <p#tag-name/>).innerText, #form-tags)
                 then remove the closest #tag"
 		>
 			&times;
