@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -8,8 +9,6 @@ import (
 	"time"
 
 	"goethe/data"
-
-	"github.com/lib/pq"
 )
 
 type PostSearchParams struct {
@@ -24,23 +23,24 @@ type PostSearchParams struct {
 }
 
 func InsertBlogPost(p *data.Post) (int, error) {
-	tx, err := db.Begin()
+	tx, err := db.Begin(context.Background())
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	defer tx.Rollback()
+	defer tx.Rollback(context.Background())
 
 	query := `INSERT INTO post(creator, title, tags, content, created_at)
                 VALUES($1, $2, $3, $4, $5)
                 RETURNING id`
 
 	err = tx.QueryRow(
+        context.Background(),
 		query,
 		p.Creator,
 		p.Title,
-		pq.Array(p.Tags),
+		p.Tags,
 		p.Content,
 		time.Now(),
 	).Scan(
@@ -51,7 +51,7 @@ func InsertBlogPost(p *data.Post) (int, error) {
 		return 0, err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err = tx.Commit(context.Background()); err != nil {
 		log.Println(err)
 		return 0, err
 	}
@@ -60,17 +60,17 @@ func InsertBlogPost(p *data.Post) (int, error) {
 }
 
 func IncrPostViews(id int) error {
-	tx, err := db.Begin()
+	tx, err := db.Begin(context.Background())
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	defer tx.Rollback()
+	defer tx.Rollback(context.Background())
 
 	query := `UPDATE post SET views = views + 1 WHERE id = $1`
 
-	_, err = tx.Exec(query, id)
+	_, err = tx.Exec(context.Background(), query, id)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -81,7 +81,7 @@ func IncrPostViews(id int) error {
 		return err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err = tx.Commit(context.Background()); err != nil {
 		log.Println(err)
 		return err
 	}
@@ -94,11 +94,11 @@ func GetBlogPostByID(id int) (data.Post, error) {
 
 	post := data.Post{}
 
-	err := db.QueryRow(query, id).Scan(
+	err := db.QueryRow(context.Background(), query, id).Scan(
 		&post.ID,
 		&post.Creator,
 		&post.Title,
-		pq.Array(&post.Tags),
+		&post.Tags,
 		&post.Content,
 		&post.Views,
 		&post.CreatedAt,
@@ -202,7 +202,7 @@ func SearchPosts(sp PostSearchParams) ([]data.Post, error) {
 		}
 
 		query.WriteString("tags && $" + fmt.Sprint(offset))
-		args = append(args, pq.Array(sp.Tags))
+		args = append(args, sp.Tags)
 
 		if fCount > 0 || eCount > 0 {
 			query.WriteString(")")
@@ -232,7 +232,7 @@ func SearchPostsByTag(tag string) ([]data.Post, error) {
 }
 
 func getPosts(query string, args ...any) ([]data.Post, error) {
-	rows, err := db.Query(query, args...)
+	rows, err := db.Query(context.Background(), query, args...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("nooooooooo roooooooooooows")
@@ -250,7 +250,7 @@ func getPosts(query string, args ...any) ([]data.Post, error) {
 			&post.ID,
 			&post.Creator,
 			&post.Title,
-			pq.Array(&post.Tags),
+			&post.Tags,
 			&post.Content,
 			&post.Views,
 			&post.CreatedAt,
@@ -277,7 +277,7 @@ func createPostTable() {
                 created_at timestamp NOT NULL
     )`
 
-	_, err := db.Exec(query)
+	_, err := db.Exec(context.Background(), query)
 	if err != nil {
 		log.Println(err)
 	}

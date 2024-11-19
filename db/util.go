@@ -1,25 +1,27 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	// "goethe/data"
-
-	_ "github.com/lib/pq"
+	// _ "github.com/lib/pq"
 )
 
-var db *sql.DB
+var db *pgxpool.Pool
 
 func New(connStr string) {
 	var err error
-	db, err = sql.Open("postgres", connStr)
+	// db, err = sql.Open("postgres", connStr)
+	db, err = pgxpool.New(context.Background(), connStr)
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	if err = db.Ping(); err != nil {
+	if err = db.Ping(context.Background()); err != nil {
 		log.Println(err)
 	}
 
@@ -51,7 +53,7 @@ func checkTz() {
 
 	var tz string
 
-	err := db.QueryRow(query).Scan(&tz)
+	err := db.QueryRow(context.Background(), query).Scan(&tz)
 	if err != nil {
 		log.Println(err)
 	}

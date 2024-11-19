@@ -1,38 +1,38 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
 	"goethe/data"
-
-	"github.com/lib/pq"
 )
 
 func InsertBook(b *data.Book) (int, error) {
-	tx, err := db.Begin()
+	tx, err := db.Begin(context.Background())
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	defer tx.Rollback()
+	defer tx.Rollback(context.Background())
 
 	query := `INSERT INTO book(isbn10, isbn13, title, authors, publishers, publish_date, pages, description, languages)
                 VALUES(NULLIF($1, ''), $2, $3, $4, $5, $6, $7, $8, $9)
                 RETURNING id`
 
 	err = db.QueryRow(
+        context.Background(), 
 		query,
         b.ISBN10,
 		b.ISBN13,
 		b.Title,
-		pq.Array(b.Authors),
-		pq.Array(b.Publishers),
+		b.Authors,
+		b.Publishers,
 		b.PublishDate,
 		b.Pages,
 		b.Description,
-		pq.Array(b.Languages),
+		b.Languages,
 	).Scan(&b.ID)
 
 	if err != nil {
@@ -40,7 +40,7 @@ func InsertBook(b *data.Book) (int, error) {
 		return 0, err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err = tx.Commit(context.Background()); err != nil {
 		log.Println(err)
 		return 0, err
 	}
@@ -55,18 +55,17 @@ func GetBookByISBN(isbn string) (data.Book, error) {
 
     var isbn10 sql.NullString
 
-	err := db.QueryRow(
-		query, isbn).Scan(
+	err := db.QueryRow(context.Background(), query, isbn).Scan(
 		&b.ID,
 		&isbn10,
 		&b.ISBN13,
 		&b.Title,
-		pq.Array(&b.Authors),
-		pq.Array(&b.Publishers),
+		&b.Authors,
+		&b.Publishers,
 		&b.PublishDate,
 		&b.Pages,
 		&b.Description,
-		pq.Array(&b.Languages),
+		&b.Languages,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -97,7 +96,7 @@ func GetBooks() []data.Book {
 		languages   []string
 	)
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(context.Background(), query)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("nooooooooo roooooooooooows")
@@ -115,12 +114,12 @@ func GetBooks() []data.Book {
 			&isbn10,
 			&isbn13,
 			&title,
-			pq.Array(&authors),
-			pq.Array(&publishers),
+			&authors,
+			&publishers,
 			&publishDate,
 			&pages,
 			&description,
-			pq.Array(&languages),
+            &languages,
 		)
 		if err != nil {
 			log.Println(err)
@@ -158,7 +157,7 @@ func createBookTable() {
                 languages VARCHAR ARRAY
     )`
 
-	_, err := db.Exec(query)
+	_, err := db.Exec(context.Background(), query)
 	if err != nil {
 		log.Println(err)
 	}

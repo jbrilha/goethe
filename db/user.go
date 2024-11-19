@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"time"
@@ -11,25 +12,25 @@ import (
 )
 
 func InsertUserAccount(u *data.User) (int, error) {
-	tx, err := db.Begin()
+	tx, err := db.Begin(context.Background())
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	defer tx.Rollback()
+	defer tx.Rollback(context.Background())
 
 	query := `INSERT INTO user_account(username, email, password, created_at)
                 VALUES($1, $2, $3, $4)
                 RETURNING id`
 
-	err = db.QueryRow(query, u.Username, u.Email, u.Password, u.CreatedAt).Scan(&u.ID)
+	err = db.QueryRow(context.Background(), query, u.Username, u.Email, u.Password, u.CreatedAt).Scan(&u.ID)
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	if err = tx.Commit(); err != nil {
+	if err = tx.Commit(context.Background()); err != nil {
 		log.Println(err)
 		return 0, err
 	}
@@ -42,7 +43,7 @@ func GetUserAccountAuth(username string) (data.User, error) {
 
 	user := data.User{}
 
-	err := db.QueryRow(query, username).Scan(
+	err := db.QueryRow(context.Background(), query, username).Scan(
 		&user.ID,
 		&user.Username,
 		// &user.Email,
@@ -66,7 +67,7 @@ func GetUserAccountByUsername(username string) (data.User, error) {
 
 	user := data.User{}
 
-	err := db.QueryRow(query, username).Scan(
+	err := db.QueryRow(context.Background(), query, username).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -90,7 +91,7 @@ func GetUserAccountByID(id int) (data.User, error) {
 
 	user := data.User{}
 
-	err := db.QueryRow(query, id).Scan(
+	err := db.QueryRow(context.Background(), query, id).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -119,7 +120,7 @@ func GetUserAccounts() []data.User {
 	var email string
 	var createdAt time.Time
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(context.Background(), query)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("nooooooooo roooooooooooows")
@@ -154,7 +155,7 @@ func UserAccountExists(un string) (bool, error) {
 
 	var exists bool
 
-	err := db.QueryRow(query, un).Scan(&exists)
+	err := db.QueryRow(context.Background(), query, un).Scan(&exists)
 	if err != nil {
 		log.Println(err)
 		return false, err
@@ -173,7 +174,7 @@ func createUserTable() {
                 created_at timestamp NOT NULL
     )`
 
-	_, err := db.Exec(query)
+	_, err := db.Exec(context.Background(), query)
 	if err != nil {
 		log.Println(err)
 	}
