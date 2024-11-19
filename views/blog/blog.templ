@@ -168,7 +168,7 @@ templ PostPreview(p data.Post) {
 		<div class="mb-2 inline-block">
 			<a
 				class="post-info mb-1 text-3xl font-bold line-clamp-2 px-2 py-1 w-fit hover:text-gray-200"
-				hx-target="#posts"
+				hx-target="#blog-page"
 				href={ templ.URL(util.PathParams("/posts", p.ID)) }
 			>
 				{ strconv.Itoa(p.ID) + " — " + p.Title }
