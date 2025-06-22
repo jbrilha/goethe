@@ -78,7 +78,7 @@ func validateRegisterForm(c echo.Context) components.FormFill {
 		ff.Errors["PW_CONF"] = "Confirmation does not match password"
 	}
 
-	exists, _ := db.UserAccountExists(un)
+	exists, _ := db.UserExists(un)
 	if exists {
 		ff.Errors["USER_EXISTS"] = "Username already taken"
 	}

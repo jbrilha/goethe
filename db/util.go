@@ -6,32 +6,26 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	// "goethe/data"
-	// _ "github.com/lib/pq"
 )
 
 var db *pgxpool.Pool
 
 func New(connStr string) {
+	ctx := context.Background()
 	var err error
-	// db, err = sql.Open("postgres", connStr)
-	db, err = pgxpool.New(context.Background(), connStr)
+	db, err = pgxpool.New(ctx, connStr)
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	if err = db.Ping(context.Background()); err != nil {
+	if err = db.Ping(ctx); err != nil {
 		log.Println(err)
 	}
 
 	createBookTable()
 	createUserTable()
-	createPostTable()
-
-	// for _, post := range data.GetPosts() {
-	// 	InsertBlogPost(&post)
-	// }
+	createPostsTable()
 }
 
 func emptyNullString(ns sql.NullString) string {

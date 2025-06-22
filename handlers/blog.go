@@ -67,6 +67,7 @@ func PostSearch(c echo.Context) error {
     sp.Refresh = refresh
 
 	p, err := db.SearchPosts(sp)
+	// p, err := db.SearchPosts(sp)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())
@@ -133,7 +134,7 @@ func parseParams(query string) db.PostSearchParams {
 func CreatorCard(c echo.Context) error {
 	username := c.Param("creator")
 
-	u, err := db.GetUserAccountByUsername(username)
+	u, err := db.GetUserByUsername(username)
 	if err != nil {
 		log.Println(err)
 		return Render(c, routes.Route404())

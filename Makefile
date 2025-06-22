@@ -1,3 +1,5 @@
+.PHONY: db
+
 run: build
 	@./bin/app
 
@@ -13,6 +15,9 @@ templ:
 
 air:
 	@air
+
+db:
+	docker compose up db
 
 dev:
 	make -j3 css templ air
